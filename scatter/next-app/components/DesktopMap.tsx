@@ -7,7 +7,7 @@ import useVoronoiFinder from '@/hooks/useVoronoiFinder';
 import useInferredFeatures from '@/hooks/useInferredFeatures';
 import useZoom from '@/hooks/useZoom';
 import useFilter from '@/hooks/useFilter';
-import { mean, isTouchDevice } from '@/utils';
+import { mean } from '@/utils';
 import { Translator } from '@/hooks/useTranslatorAndReplacements';
 import { ColorFunc } from '@/hooks/useClusterColor';
 import { useGesture } from '@use-gesture/react';
@@ -92,8 +92,6 @@ function DesktopMap(props: MapProps) {
   const { scaleX, scaleY, width, height } = dimensions || {};
   const { t } = translator;
 
-  const [isTouch, setIsTouch] = useState(false);
-
   const favoritesKey = `favorites_${window.location.href}`;
 
   const [favorites, setFavorites] = useState<FavoritePoint[]>(() => {
@@ -116,17 +114,11 @@ function DesktopMap(props: MapProps) {
     }
   }, [favorites]);
 
-  useEffect(() => {
-    setIsTouch(isTouchDevice());
-  }, []);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const TOOLTIP_WIDTH = 200;
 
   const calculateTooltipPosition = (clientX: number, clientY: number) => {
-    if (isTouch && dimensions) {
-      return { x: width! / 2, y: height! / 2 };
-    }
 
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -167,49 +159,19 @@ function DesktopMap(props: MapProps) {
   const [isZoomEnabled, setIsZoomEnabled] = useState(true);
 
   const handleClick = (e: any) => {
-    console.log('handleClick called');
-    if (isTouch) {
-      let clientX, clientY;
-      if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if (e.changedTouches && e.changedTouches.length > 0) {
-        clientX = e.changedTouches[0].clientX;
-        clientY = e.changedTouches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-
-      const clickedPoint = findPoint({ clientX, clientY });
+    if (tooltip && !expanded) {
+      setExpanded(true);
+    } else if (expanded) {
+      setExpanded(false);
+      setTooltip(null);
+    } else {
+      const clickedPoint = findPoint(e);
       if (clickedPoint) {
-        const newPosition = calculateTooltipPosition(clientX, clientY);
-        console.log('Clicked point found:', clickedPoint.data);
+        const newPosition = calculateTooltipPosition(e.clientX, e.clientY);
         setTooltip(clickedPoint.data);
         setTooltipPosition(newPosition);
       } else {
-        console.log('No point found at the clicked position');
         setTooltip(null);
-      }
-    } else {
-      if (tooltip && !expanded) {
-        setExpanded(true);
-        console.log('Tooltip expanded');
-      } else if (expanded) {
-        setExpanded(false);
-        setTooltip(null);
-        console.log('Tooltip collapsed');
-      } else {
-        const clickedPoint = findPoint(e);
-        if (clickedPoint) {
-          const newPosition = calculateTooltipPosition(e.clientX, e.clientY);
-          console.log('Clicked point found:', clickedPoint.data);
-          setTooltip(clickedPoint.data);
-          setTooltipPosition(newPosition);
-        } else {
-          console.log('No point found at the clicked position');
-          setTooltip(null);
-        }
       }
     }
   };
@@ -424,13 +386,11 @@ function DesktopMap(props: MapProps) {
             )}
           </svg>
           {/* CLUSTER LABELS */}
-          {fullScreen && showLabels && !zoom.dragging && !isTouchDevice() && (
+          {fullScreen && showLabels && !zoom.dragging && (
             <div>
               {clusters.map((cluster) => (
                 <div
-                  className={`absolute opacity-90 bg-white p-2 max-w-lg rounded-lg pointer-events-none select-none transition-opacity duration-300 font-bold ${
-                    isTouch ? 'text-base' : 'text-md'
-                  }`}
+                  className={`absolute opacity-90 bg-white p-2 max-w-lg rounded-lg pointer-events-none select-none transition-opacity duration-300 font-bold text-md`}
                   key={cluster.cluster_id}
                   style={{
                     transform: 'translate(-50%, -50%)',
@@ -493,7 +453,6 @@ function DesktopMap(props: MapProps) {
                 setTooltip(null);
                 setExpanded(false);
               }}
-              isTouch={isTouch}
             />
           )}
           {/* BACK BUTTON と その他のボタン */}

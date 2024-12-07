@@ -15,14 +15,19 @@ import AfterAppendix from "./AfterAppendix";
 
 type ReportProps = Result;
 
+const isMobileDevice = () => {
+  const mobilePattern = /Android|webOS|iPhone|iPad|Opera Mini/i;
+  return mobilePattern.test(navigator.userAgent);
+};
+
 const ResponsiveMap = (props: any) => {
-  const [isTouch, setIsTouch] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsTouch(isTouchDevice());
+    setIsMobile(isMobileDevice());
   }, []);
 
-  return isTouch ? <MobileMap {...props} /> : <DesktopMap {...props} />;
+  return isMobile ? <MobileMap {...props} /> : <DesktopMap {...props} />;
 };
 
 function Report(props: ReportProps) {

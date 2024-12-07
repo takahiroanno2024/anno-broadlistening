@@ -19,7 +19,6 @@ type TooltipProps = {
   colorFunc: ColorFunc;
   position: { x: number; y: number };
   onClose: () => void;
-  isTouch: boolean; // 追加
 };
 
 function Tooltip(props: TooltipProps) {
@@ -32,15 +31,13 @@ function Tooltip(props: TooltipProps) {
     onToggleFavorite,
     colorFunc,
     translator,
-    isTouch, // 追加
   } = props;
 
   const { t } = translator;
 
-  // スタイルを `expanded` と `isTouch` に応じて変更
-  const tooltipStyle: React.CSSProperties = isTouch
+  // スタイルを `expanded` に応じて変更
+  const tooltipStyle: React.CSSProperties = expanded
     ? {
-        // タッチデバイスの場合、中央に固定
         position: 'fixed',
         left: '50%',
         top: '50%',
@@ -81,7 +78,7 @@ function Tooltip(props: TooltipProps) {
   return (
     <>
       {/* スマホの場合、オーバーレイを表示しない */}
-      {(!isTouch && expanded) && (
+      {(expanded) && (
         <div
           onClick={onClose}
           style={{
@@ -96,8 +93,7 @@ function Tooltip(props: TooltipProps) {
         />
       )}
       <div style={tooltipStyle}>
-        {/* PCのクリック時のみCloseボタンを表示 */}
-        {expanded && !isTouch && (
+        {expanded && (
           <button onClick={onClose} style={{ float: 'right' }}>
             {t('Close')}
           </button>
