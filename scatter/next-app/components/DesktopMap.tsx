@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Result, Point, FavoritePoint } from '@/types';
 import Tooltip from '@/components/DesktopTooltip';
 import useAutoResize from '@/hooks/useAutoResize';
@@ -85,68 +85,70 @@ function DesktopMap(props: MapProps) {
     dataHasVotes
   );
 
-  const totalArgs = clusters
-  .map((c) => c.arguments.length)
-  .reduce((a, b) => a + b, 0);
+  const totalArgs = useMemo(() => 
+    clusters.map((c) => c.arguments.length)
+    .reduce((a, b) => a + b, 0), 
+    [clusters]
+  );
 
   const { scaleX, scaleY, width, height } = dimensions || {};
   const { t } = translator;
 
   const favoritesKey = `favorites_${window.location.href}`;
 
-  const [favorites, setFavorites] = useState<FavoritePoint[]>(() => {
+  // お気に入りはSetで管理
+  const [favoriteMap, setFavoriteMap] = useState<Map<string, FavoritePoint>>(() => {
     try {
       const storedFavorites = localStorage.getItem(favoritesKey);
-      console.log('読み込んだお気に入り:', storedFavorites);
-      return storedFavorites ? JSON.parse(storedFavorites) : [];
+      const favArray: FavoritePoint[] = storedFavorites ? JSON.parse(storedFavorites) : [];
+      const favMap = new Map<string, FavoritePoint>();
+      for (const f of favArray) {
+        favMap.set(f.arg_id, f);
+      }
+      return favMap;
     } catch (error) {
-      console.error('お気に入りの読み込みに失敗しました:', error);
-      return [];
+      console.error('Failed to load favorites:', error);
+      return new Map();
     }
   });
+
+  const favorites = useMemo(() => Array.from(favoriteMap.values()), [favoriteMap]);
 
   useEffect(() => {
     try {
       localStorage.setItem(favoritesKey, JSON.stringify(favorites));
-      console.log('保存したお気に入り:', favorites);
     } catch (error) {
-      console.error('お気に入りの保存に失敗しました:', error);
+      console.error('Failed to save favorites:', error);
     }
-  }, [favorites]);
+  }, [favorites, favoritesKey]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const TOOLTIP_WIDTH = 200;
 
-  const calculateTooltipPosition = (clientX: number, clientY: number) => {
-
+  const calculateTooltipPosition = useCallback((clientX: number, clientY: number) => {
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
       let x = clientX - containerRect.left;
       let y = clientY - containerRect.top;
 
-      // コンテナの幅を取得
       const containerWidth = containerRect.width;
 
       if (x + TOOLTIP_WIDTH > containerWidth) {
         x = containerWidth - TOOLTIP_WIDTH - 10;
       }
 
-      // ツールチップが左端に来すぎないように調整
-      if (x < 10) { // 10pxの余裕
+      if (x < 10) {
         x = 10;
       }
 
-      // 同様に縦方向の調整も可能（必要に応じて）
       return { x, y };
     }
 
-    console.warn('containerRef.current is undefined');
     return { x: 0, y: 0 };
-  };
+  }, []);
 
   if (!dimensions) {
-    console.log('NO DIMENSIONS???');
     return (
       <div
         className="m-auto bg-blue-50"
@@ -158,7 +160,7 @@ function DesktopMap(props: MapProps) {
   const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 });
   const [isZoomEnabled, setIsZoomEnabled] = useState(true);
 
-  const handleClick = (e: any) => {
+  const handleClick = useCallback((e: any) => {
     if (tooltip && !expanded) {
       setExpanded(true);
     } else if (expanded) {
@@ -174,9 +176,9 @@ function DesktopMap(props: MapProps) {
         setTooltip(null);
       }
     }
-  };
+  }, [tooltip, expanded, findPoint, calculateTooltipPosition]);
 
-  const handleMove = (e: any) => {
+  const handleMove = useCallback((e: any) => {
     if (!expanded) {
       const movedPoint = findPoint(e);
       if (movedPoint) {
@@ -187,52 +189,44 @@ function DesktopMap(props: MapProps) {
         setTooltip(null);
       }
     }
-  };
+  }, [expanded, findPoint, calculateTooltipPosition]);
 
-  const toggleFavorite = (fav: FavoritePoint) => {
-    setFavorites((prevFavorites) => {
-      const isAlreadyFavorite = prevFavorites.some(
-        (item) => item.arg_id === fav.arg_id
-      );
-      if (isAlreadyFavorite) {
-        return prevFavorites.filter((item) => item.arg_id !== fav.arg_id);
+  const toggleFavorite = useCallback((fav: FavoritePoint) => {
+    setFavoriteMap((prev) => {
+      const newMap = new Map(prev);
+      if (newMap.has(fav.arg_id)) {
+        newMap.delete(fav.arg_id);
       } else {
-        return [...prevFavorites, fav];
+        newMap.set(fav.arg_id, fav);
       }
+      return newMap;
     });
-  };
+  }, []);
 
-  const handleTap = (event: any) => {
-    console.log('handleTap called');
+  const handleTap = useCallback((event: any) => {
     const clientX = event.clientX;
     const clientY = event.clientY;
-
-    console.log(`Tap event at (${clientX}, ${clientY})`);
 
     const clickedPoint = findPoint({ clientX, clientY });
     if (clickedPoint) {
       const newPosition = calculateTooltipPosition(clientX, clientY);
-      console.log('Tapped point found:', clickedPoint.data);
       setTooltip(clickedPoint.data);
       setTooltipPosition(newPosition);
     } else {
-      // ツールチップが開いている場合は閉じる
       if (tooltip) {
         setTooltip(null);
-        console.log('Tooltip closed due to tap with no point');
       }
     }
-  };
+  }, [findPoint, calculateTooltipPosition, tooltip]);
 
   const bind = useGesture(
     {
       onDrag: ({ movement: [mx, my], cancel, direction: [dx, dy], distance, memo }) => {
         if (!isZoomEnabled) return memo;
         if (Math.abs(dy) > Math.abs(dx)) {
-          cancel(); // ドラッグをキャンセルしてスクロールを許可
+          cancel();
           return memo;
         }
-        // 水平方向のドラッグの場合、地図のパンを処理
         setZoomState((prev) => ({ ...prev, x: prev.x + mx, y: prev.y + my }));
         return memo;
       },
@@ -251,7 +245,7 @@ function DesktopMap(props: MapProps) {
         threshold: 5,
       },
       pinch: {
-        scaleBounds: { min: 0.5, max: 4 }, 
+        scaleBounds: { min: 0.5, max: 4 },
       },
     }
   );
@@ -272,11 +266,9 @@ function DesktopMap(props: MapProps) {
     return null;
   }
 
-
   useEffect(() => {
     if (clusters.length === 0) return;
   
-    // 全てのデータ点のXとYの最小値と最大値を計算
     const allX = clusters.flatMap(cluster => cluster.arguments.map(arg => arg.x));
     const allY = clusters.flatMap(cluster => cluster.arguments.map(arg => arg.y));
     const minX = Math.min(...allX);
@@ -284,20 +276,18 @@ function DesktopMap(props: MapProps) {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
   
-    const dataWidth = maxX - minX;
-    const dataHeight = maxY - minY;
-  
     if (!dimensions) return;
   
     const { width: dimensionsWidth, height: containerHeight } = dimensions;
     const containerWidth = fullScreen ? dimensionsWidth * 0.75 : dimensionsWidth;
   
     const margin = fullScreen ? 0.6 : 0.8;
+    const dataWidth = maxX - minX;
+    const dataHeight = maxY - minY;
     const scaleX = (containerWidth * margin) / dataWidth;
     const scaleY = (containerHeight * margin) / dataHeight;
     let scale = Math.min(scaleX, scaleY);
   
-    // フルスクリーン時のスケールを調整
     if (fullScreen) {
       scale *= 0.8;
     }
@@ -307,13 +297,26 @@ function DesktopMap(props: MapProps) {
     setZoomState({ scale, x, y });
   }, [clusters, dimensions, fullScreen]);
 
-  const map_title = extractFirstBracketContent(config.name);
+  const map_title = useMemo(() => extractFirstBracketContent(config.name), [config.name]);
+
+  const isFavorite = useCallback((arg_id: string) => {
+    return favoriteMap.has(arg_id);
+  }, [favoriteMap]);
+
+  const favoriteCircles = useMemo(() => showFavorites ? favorites.map((fav) => (
+    <circle
+      key={fav.arg_id}
+      cx={zoom.zoomX(scaleX(fav.x) + 20)}
+      cy={zoom.zoomY(scaleY(fav.y))}
+      fill="gold"
+      r={6}
+    />
+  )) : null, [showFavorites, favorites, zoom, scaleX, scaleY]);
 
   return (
     <>
       <CustomTitle config={config} />
       <div className="flex flex-1">
-        {/* 地図コンテナ */}
         <div
           ref={containerRef}
           className="relative flex-grow"
@@ -326,14 +329,13 @@ function DesktopMap(props: MapProps) {
             if (!expanded) setTooltip(null);
           }}
         >
-          {/* 地図タイトル */}
           {showTitle && fullScreen && (
             <div 
               className="absolute top-12 left-1/2 transform -translate-x-1/2 z-10 bg-white px-4 py-2 rounded-lg shadow-md"
               style={{
                 opacity: expanded ? 0.3 : 0.85,
                 whiteSpace: 'nowrap',
-                overflow: 'hidden', 
+                overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}
             >
@@ -353,7 +355,6 @@ function DesktopMap(props: MapProps) {
               },
             })}
           >
-            {/* DOT CIRCLES */}
             {clusters.map((cluster) =>
               cluster.arguments
                 .filter(voteFilter.filter)
@@ -372,20 +373,9 @@ function DesktopMap(props: MapProps) {
                   />
                 ))
             )}
-            {/* お気に入りの表示 */}
-            {showFavorites && (
-              favorites.map((fav) => (
-                <circle
-                  key={fav.arg_id}
-                  cx={zoom.zoomX(scaleX(fav.x))}
-                  cy={zoom.zoomY(scaleY(fav.y))}
-                  fill="gold"
-                  r={6}
-                />
-              ))
-            )}
+            {favoriteCircles}
           </svg>
-          {/* CLUSTER LABELS */}
+
           {fullScreen && showLabels && !zoom.dragging && (
             <div>
               {clusters.map((cluster) => (
@@ -424,7 +414,6 @@ function DesktopMap(props: MapProps) {
             </div>
           )}
 
-          {/* TOOLTIP */}
           {tooltip && (
             <Tooltip
               point={tooltip}
@@ -433,9 +422,7 @@ function DesktopMap(props: MapProps) {
               expanded={expanded}
               fullScreen={fullScreen}
               translator={translator}
-              isFavorite={favorites.some(
-                (fav) => fav.arg_id === tooltip.arg_id
-              )}
+              isFavorite={isFavorite(tooltip.arg_id)}
               onToggleFavorite={() =>
                 toggleFavorite({
                   arg_id: tooltip.arg_id,
@@ -455,7 +442,7 @@ function DesktopMap(props: MapProps) {
               }}
             />
           )}
-          {/* BACK BUTTON と その他のボタン */}
+
           {fullScreen && (
             <div className="absolute top-0 left-0">
               <button className="m-2 underline" onClick={back}>
@@ -502,7 +489,6 @@ function DesktopMap(props: MapProps) {
                   {showFilters ? t('Hide filters') : t('Show filters')}
                 </button>
               )}
-              {/* FILTERS */}
               {showFilters && (
                 <div className="absolute w-[400px] top-12 left-2 p-2 border bg-white rounded leading-4">
                   <div className="flex justify-between">
@@ -561,58 +547,51 @@ function DesktopMap(props: MapProps) {
           )}
         </div>
 
-        {/* お気に入り一覧 */}
         {(!fullScreen || showFavorites) && (
           <div
             className="w-1/4 p-4 bg-gray-100 overflow-y-auto"
-          style={{
-            height: fullScreen ? '100vh' : `${height}px`,
-          }}
-        >
-          <h2 className="text-md font-bold mb-4">
-            {translator.t('お気に入り一覧')}
-          </h2>
-          {favorites.length === 0 ? (
-            <p>{translator.t('お気に入りがありません')}</p>
-          ) : (
-            <ul>
-              {favorites.map((fav) => {
-                // クラスタ情報を取得
-                const cluster = clusters.find((c) => c.cluster_id === fav.cluster_id);
-                return (
-                  <li
-                    key={fav.arg_id}
-                    className="mb-2 p-2 bg-white rounded shadow flex flex-col"
-                  >
-                    <div className="flex items-center justify-between">
-                      {/* クラスタラベル */}
-                      <h3
-                        className="font-semibold text-md"
-                        style={{
-                          color: cluster ? color(cluster.cluster_id, onlyCluster) : '#000',
-                        }}
-                      >
-                        {translator.t(cluster?.cluster || 'クラスタ')}
-                      </h3>
-
-                      {/* お気に入りボタン */}
-                      <button
-                        onClick={() => toggleFavorite(fav)}
-                        className="text-amber-500 text-lg focus:outline-none ml-2"
-                      >
-                        <FontAwesomeIcon icon={solidBookmark} />
-                      </button>
-                    </div>
-
-                    {/* 引用部分を100文字に制限 */}
-                    <p className="text-md text-gray-700 mt-1">
-                      {truncateText(fav.argument, 100)}
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+            style={{
+              height: fullScreen ? '100vh' : `${height}px`,
+            }}
+          >
+            <h2 className="text-md font-bold mb-4">
+              {translator.t('お気に入り一覧')}
+            </h2>
+            {favorites.length === 0 ? (
+              <p>{translator.t('お気に入りがありません')}</p>
+            ) : (
+              <ul>
+                {favorites.map((fav) => {
+                  const cluster = clusters.find((c) => c.cluster_id === fav.cluster_id);
+                  return (
+                    <li
+                      key={fav.arg_id}
+                      className="mb-2 p-2 bg-white rounded shadow flex flex-col"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3
+                          className="font-semibold text-md"
+                          style={{
+                            color: cluster ? color(cluster.cluster_id, onlyCluster) : '#000',
+                          }}
+                        >
+                          {translator.t(cluster?.cluster || 'クラスタ')}
+                        </h3>
+                        <button
+                          onClick={() => toggleFavorite(fav)}
+                          className="text-amber-500 text-lg focus:outline-none ml-2"
+                        >
+                          <FontAwesomeIcon icon={solidBookmark} />
+                        </button>
+                      </div>
+                      <p className="text-md text-gray-700 mt-1">
+                        {truncateText(fav.argument, 100)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         )}
       </div>
