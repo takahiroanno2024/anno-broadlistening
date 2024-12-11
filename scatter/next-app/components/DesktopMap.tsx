@@ -15,6 +15,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark as solidBookmark } from '@fortawesome/free-solid-svg-icons';
 import CustomTitle from '@/components/CustomTitle';
 
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+  let timeout: any;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
+}
+
 type TooltipPosition = {
   x: number;
   y: number;
@@ -35,6 +45,7 @@ type MapProps = Result & {
     description?: string;
     question?: string;
   };
+  enableFavorites?: boolean; // お気に入り機能を有効/無効にするフラグ
 };
 
 const truncateText = (text: string, maxLength: number) => {
@@ -51,6 +62,7 @@ function DesktopMap(props: MapProps) {
     translator,
     color,
     config,
+    enableFavorites = false,
   } = props;
   const { dataHasVotes } = useInferredFeatures(props);
   const dimensions = useAutoResize(props.width, props.height);
@@ -72,7 +84,8 @@ function DesktopMap(props: MapProps) {
   const [expanded, setExpanded] = useState(false);
   const [showLabels, setShowLabels] = useState(true);
   const [showRatio, setShowRatio] = useState(false);
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(enableFavorites ? false : false);
+  
   const [showFilters, setShowFilters] = useState(false);
   const [showTitle, setShowTitle] = useState(false);
   const [minVotes, setMinVotes] = useState(0);
@@ -86,41 +99,63 @@ function DesktopMap(props: MapProps) {
   );
 
   const totalArgs = useMemo(() => 
-    clusters.map((c) => c.arguments.length)
-    .reduce((a, b) => a + b, 0), 
+    clusters.reduce((acc, c) => acc + c.arguments.length, 0), 
     [clusters]
   );
 
   const { scaleX, scaleY, width, height } = dimensions || {};
   const { t } = translator;
 
-  const favoritesKey = `favorites_${window.location.href}`;
-
-  // お気に入りはSetで管理
-  const [favoriteMap, setFavoriteMap] = useState<Map<string, FavoritePoint>>(() => {
+  const favoritesKey = enableFavorites ? `favorites_${window.location.href}` : '';
+  
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
+    if (!enableFavorites) return new Set();
     try {
       const storedFavorites = localStorage.getItem(favoritesKey);
       const favArray: FavoritePoint[] = storedFavorites ? JSON.parse(storedFavorites) : [];
-      const favMap = new Map<string, FavoritePoint>();
-      for (const f of favArray) {
-        favMap.set(f.arg_id, f);
-      }
-      return favMap;
+      return new Set(favArray.map((f) => f.arg_id));
     } catch (error) {
       console.error('Failed to load favorites:', error);
-      return new Map();
+      return new Set();
     }
   });
 
-  const favorites = useMemo(() => Array.from(favoriteMap.values()), [favoriteMap]);
+  const saveFavoritesDebounced = useMemo(() => 
+    enableFavorites ? debounce((favArray: FavoritePoint[]) => {
+      try {
+        localStorage.setItem(favoritesKey, JSON.stringify(favArray));
+      } catch (error) {
+        console.error('Failed to save favorites:', error);
+      }
+    }, 500) : () => {},
+  [favoritesKey, enableFavorites]);
+
+  const favorites = useMemo<FavoritePoint[]>(() => {
+    if (!enableFavorites) return [];
+    const favPoints: FavoritePoint[] = [];
+    for (const cluster of clusters) {
+      for (const arg of cluster.arguments) {
+        if (favoriteIds.has(arg.arg_id)) {
+          favPoints.push({
+            arg_id: arg.arg_id,
+            argument: arg.argument,
+            comment_id: arg.comment_id,
+            x: arg.x,
+            y: arg.y,
+            p: arg.p,
+            cluster_id: cluster.cluster_id
+          });
+        }
+      }
+    }
+    return favPoints;
+  }, [favoriteIds, clusters, enableFavorites]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(favoritesKey, JSON.stringify(favorites));
-    } catch (error) {
-      console.error('Failed to save favorites:', error);
+    if (enableFavorites) {
+      saveFavoritesDebounced(favorites);
     }
-  }, [favorites, favoritesKey]);
+  }, [favorites, saveFavoritesDebounced, enableFavorites]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -192,16 +227,17 @@ function DesktopMap(props: MapProps) {
   }, [expanded, findPoint, calculateTooltipPosition]);
 
   const toggleFavorite = useCallback((fav: FavoritePoint) => {
-    setFavoriteMap((prev) => {
-      const newMap = new Map(prev);
-      if (newMap.has(fav.arg_id)) {
-        newMap.delete(fav.arg_id);
+    if (!enableFavorites) return;
+    setFavoriteIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(fav.arg_id)) {
+        newSet.delete(fav.arg_id);
       } else {
-        newMap.set(fav.arg_id, fav);
+        newSet.add(fav.arg_id);
       }
-      return newMap;
+      return newSet;
     });
-  }, []);
+  }, [enableFavorites]);
 
   const handleTap = useCallback((event: any) => {
     const clientX = event.clientX;
@@ -300,18 +336,78 @@ function DesktopMap(props: MapProps) {
   const map_title = useMemo(() => extractFirstBracketContent(config.name), [config.name]);
 
   const isFavorite = useCallback((arg_id: string) => {
-    return favoriteMap.has(arg_id);
-  }, [favoriteMap]);
+    if (!enableFavorites) return false;
+    return favoriteIds.has(arg_id);
+  }, [favoriteIds, enableFavorites]);
 
-  const favoriteCircles = useMemo(() => showFavorites ? favorites.map((fav) => (
-    <circle
-      key={fav.arg_id}
-      cx={zoom.zoomX(scaleX(fav.x) + 20)}
-      cy={zoom.zoomY(scaleY(fav.y))}
-      fill="gold"
-      r={6}
-    />
-  )) : null, [showFavorites, favorites, zoom, scaleX, scaleY]);
+  const FavoriteCircles = React.memo(({ showFavorites, favorites, zoom, scaleX, scaleY }: 
+    { showFavorites: boolean; favorites: FavoritePoint[]; zoom: any; scaleX: (v:number)=>number; scaleY:(v:number)=>number }) => {
+    if (!showFavorites) return null;
+    return (
+      <>
+        {favorites.map((fav) => (
+          <circle
+            key={fav.arg_id}
+            cx={zoom.zoomX(scaleX(fav.x) + 20)}
+            cy={zoom.zoomY(scaleY(fav.y))}
+            fill="gold"
+            r={6}
+          />
+        ))}
+      </>
+    );
+  });
+
+  const FavoriteList = React.memo(({ favorites, clusters, color, onlyCluster, translator, toggleFavorite, fullScreen, height }: 
+    { favorites: FavoritePoint[], clusters:any[], color:ColorFunc, onlyCluster?:string, translator: Translator, toggleFavorite:(fav:FavoritePoint)=>void, fullScreen:boolean, height:number }) => {
+    return (
+      <div
+        className="w-1/4 p-4 bg-gray-100 overflow-y-auto"
+        style={{
+          height: fullScreen ? '100vh' : `${height}px`,
+        }}
+      >
+        <h2 className="text-md font-bold mb-4">
+          {translator.t('お気に入り一覧')}
+        </h2>
+        {favorites.length === 0 ? (
+          <p>{translator.t('お気に入りがありません')}</p>
+        ) : (
+          <ul>
+            {favorites.map((fav) => {
+              const cluster = clusters.find((c) => c.cluster_id === fav.cluster_id);
+              return (
+                <li
+                  key={fav.arg_id}
+                  className="mb-2 p-2 bg-white rounded shadow flex flex-col"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3
+                      className="font-semibold text-md"
+                      style={{
+                        color: cluster ? color(cluster.cluster_id, onlyCluster) : '#000',
+                      }}
+                    >
+                      {translator.t(cluster?.cluster || 'クラスタ')}
+                    </h3>
+                    <button
+                      onClick={() => toggleFavorite(fav)}
+                      className="text-amber-500 text-lg focus:outline-none ml-2"
+                    >
+                      <FontAwesomeIcon icon={solidBookmark} />
+                    </button>
+                  </div>
+                  <p className="text-md text-gray-700 mt-1">
+                    {truncateText(fav.argument, 100)}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    )
+  });
 
   return (
     <>
@@ -373,14 +469,22 @@ function DesktopMap(props: MapProps) {
                   />
                 ))
             )}
-            {favoriteCircles}
+            {enableFavorites && (
+              <FavoriteCircles 
+                showFavorites={showFavorites} 
+                favorites={favorites} 
+                zoom={zoom} 
+                scaleX={scaleX} 
+                scaleY={scaleY} 
+              />
+            )}
           </svg>
 
           {fullScreen && showLabels && !zoom.dragging && (
             <div>
               {clusters.map((cluster) => (
                 <div
-                  className={`absolute opacity-90 bg-white p-2 max-w-lg rounded-lg pointer-events-none select-none transition-opacity duration-300 font-bold text-md`}
+                  className="absolute opacity-90 bg-white p-2 max-w-lg rounded-lg pointer-events-none select-none transition-opacity duration-300 font-bold text-md"
                   key={cluster.cluster_id}
                   style={{
                     transform: 'translate(-50%, -50%)',
@@ -422,18 +526,21 @@ function DesktopMap(props: MapProps) {
               expanded={expanded}
               fullScreen={fullScreen}
               translator={translator}
-              isFavorite={isFavorite(tooltip.arg_id)}
-              onToggleFavorite={() =>
-                toggleFavorite({
-                  arg_id: tooltip.arg_id,
-                  argument: tooltip.argument,
-                  comment_id: tooltip.comment_id,
-                  x: tooltip.x,
-                  y: tooltip.y,
-                  p: tooltip.p,
-                  cluster_id: tooltip.cluster_id,
-                })
-              }
+              isFavorite={enableFavorites ? isFavorite(tooltip.arg_id) : false}
+              enableFavorites={enableFavorites}
+              onToggleFavorite={() => {
+                if (enableFavorites) {
+                  toggleFavorite({
+                    arg_id: tooltip.arg_id,
+                    argument: tooltip.argument,
+                    comment_id: tooltip.comment_id,
+                    x: tooltip.x,
+                    y: tooltip.y,
+                    p: tooltip.p,
+                    cluster_id: tooltip.cluster_id,
+                  });
+                }
+              }}
               colorFunc={color}
               position={tooltipPosition}
               onClose={() => {
@@ -453,12 +560,14 @@ function DesktopMap(props: MapProps) {
                 onClick={() => setShowLabels(x => !x)}>
                 {showLabels ? t('Hide labels') : t('Show labels')}
               </button>
-              <button
-                className="m-2 underline"
-                onClick={() => setShowFavorites(x => !x)} 
-              >
-                {showFavorites ? t('お気に入りを非表示') : t('お気に入りを表示')}
-              </button>
+              {enableFavorites && (
+                <button
+                  className="m-2 underline"
+                  onClick={() => setShowFavorites(x => !x)} 
+                >
+                  {showFavorites ? t('お気に入りを非表示') : t('お気に入りを表示')}
+                </button>
+              )}
               <button
                 className="m-2 underline"
                 onClick={() => setShowTitle(x => !x)}
@@ -547,52 +656,18 @@ function DesktopMap(props: MapProps) {
           )}
         </div>
 
-        {(!fullScreen || showFavorites) && (
-          <div
-            className="w-1/4 p-4 bg-gray-100 overflow-y-auto"
-            style={{
-              height: fullScreen ? '100vh' : `${height}px`,
-            }}
-          >
-            <h2 className="text-md font-bold mb-4">
-              {translator.t('お気に入り一覧')}
-            </h2>
-            {favorites.length === 0 ? (
-              <p>{translator.t('お気に入りがありません')}</p>
-            ) : (
-              <ul>
-                {favorites.map((fav) => {
-                  const cluster = clusters.find((c) => c.cluster_id === fav.cluster_id);
-                  return (
-                    <li
-                      key={fav.arg_id}
-                      className="mb-2 p-2 bg-white rounded shadow flex flex-col"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3
-                          className="font-semibold text-md"
-                          style={{
-                            color: cluster ? color(cluster.cluster_id, onlyCluster) : '#000',
-                          }}
-                        >
-                          {translator.t(cluster?.cluster || 'クラスタ')}
-                        </h3>
-                        <button
-                          onClick={() => toggleFavorite(fav)}
-                          className="text-amber-500 text-lg focus:outline-none ml-2"
-                        >
-                          <FontAwesomeIcon icon={solidBookmark} />
-                        </button>
-                      </div>
-                      <p className="text-md text-gray-700 mt-1">
-                        {truncateText(fav.argument, 100)}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
+        {/* お気に入り機能有効かつ表示中の場合のみリスト表示 */}
+        {enableFavorites && (!fullScreen || showFavorites) && (
+          <FavoriteList 
+            favorites={favorites} 
+            clusters={clusters} 
+            color={color} 
+            onlyCluster={onlyCluster} 
+            translator={translator} 
+            toggleFavorite={toggleFavorite} 
+            fullScreen={fullScreen} 
+            height={height!} 
+          />
         )}
       </div>
     </>

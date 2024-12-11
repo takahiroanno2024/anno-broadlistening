@@ -1,3 +1,4 @@
+ // Start of Selection
 import React from 'react';
 import { Point, Dimensions } from '@/types';
 import { Translator } from '@/hooks/useTranslatorAndReplacements';
@@ -19,6 +20,7 @@ type TooltipProps = {
   colorFunc: ColorFunc;
   position: { x: number; y: number };
   onClose: () => void;
+  enableFavorites: boolean;
 };
 
 function Tooltip(props: TooltipProps) {
@@ -31,6 +33,7 @@ function Tooltip(props: TooltipProps) {
     onToggleFavorite,
     colorFunc,
     translator,
+    enableFavorites,
   } = props;
 
   const { t } = translator;
@@ -91,16 +94,18 @@ function Tooltip(props: TooltipProps) {
             {translator.t(point.cluster)}
           </h3>
           {/* お気に入りボタン */}
-          <button
-            onClick={() => onToggleFavorite()}
-            className="text-amber-500 text-lg focus:outline-none ml-2"
-            aria-label={
-              isFavorite ? t('お気に入りから削除') : t('お気に入りに追加')
-            }
-            style={{ marginLeft: '8px' }}
-          >
-            <FontAwesomeIcon icon={isFavorite ? solidBookmark : regularBookmark} />
-          </button>
+          {enableFavorites && (
+            <button
+              onClick={() => onToggleFavorite()}
+              className="text-amber-500 text-lg focus:outline-none ml-2"
+              aria-label={
+                isFavorite ? t('お気に入りから削除') : t('お気に入りに追加')
+              }
+              style={{ marginLeft: '8px' }}
+            >
+              <FontAwesomeIcon icon={isFavorite ? solidBookmark : regularBookmark} />
+            </button>
+          )}
         </div>
         <p className="text-sm sm:text-sm md:text-md mt-2">{point.argument}</p>
       </div>
