@@ -91,7 +91,7 @@ function DotCircles(
           className="pointer-events-none"
           key={arg_id}
           id={arg_id}
-          cx={zoom.zoomX(scaleX(x) + 20)}
+          cx={zoom.zoomX(scaleX(x))}
           cy={zoom.zoomY(scaleY(y))}
           fill={color(cluster.cluster_id, onlyCluster)}
           opacity={calculatedOpacity}
@@ -375,28 +375,32 @@ function DesktopMap(props: MapProps) {
 
   }, [clusters, dimensions, fullScreen])
 
-  const TOOLTIP_WIDTH = 200
+  const TOOLTIP_WIDTH = 300
+  const TOOLTIP_HEIGHT = 100
+  const TOOLTIP_MARGIN = 15
 
   const calculateTooltipPosition = (clientX: number, clientY: number) => {
 
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect()
       let x = clientX - containerRect.left
-      const y = clientY - containerRect.top
+      let y = clientY - containerRect.top
 
-      // コンテナの幅を取得
+      // コンテナのサイズを取得
       const containerWidth = containerRect.width
-
+      const containerHeight = containerRect.height
+      // right
       if (x + TOOLTIP_WIDTH > containerWidth) {
-        x = containerWidth - TOOLTIP_WIDTH - 10
+        x = containerWidth - TOOLTIP_WIDTH - TOOLTIP_MARGIN
       }
-
-      // ツールチップが左端に来すぎないように調整
-      if (x < 10) { // 10pxの余裕
-        x = 10
+      // left
+      if (x < TOOLTIP_MARGIN) {
+        x = TOOLTIP_MARGIN
       }
-
-      // 同様に縦方向の調整も可能（必要に応じて）
+      // bottom
+      if (y + TOOLTIP_HEIGHT > containerHeight) {
+        y = containerHeight - TOOLTIP_HEIGHT - TOOLTIP_MARGIN
+      }
       return {x, y}
     }
 

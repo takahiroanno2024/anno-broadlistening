@@ -12,8 +12,8 @@ const useVoronoiFinder = (
   zoom: Zoom,
   dimensions?: Dimensions,
   onlyCluster?: string,
-  radius = 30,
-  filterFn?: FilterFn
+  baseRadius = 20,
+  filterFn?: FilterFn,
 ) => {
   return useMemo(() => {
     if (!dimensions) return () => null as any
@@ -39,17 +39,20 @@ const useVoronoiFinder = (
       width,
       height,
     })(points)
+
     return (mouseEvent: any) => {
       // FIXME mouseEvent 以外が渡されることがある
       const rect = mouseEvent.target?.getBoundingClientRect!() || {left: 0, top: 0} // FIXME
       const x = zoom.unZoomX(mouseEvent.clientX - rect.left)
       const y = zoom.unZoomY(mouseEvent.clientY - rect.top)
-      const found = layout.find(x, y, radius)
+      const adjustedRadius = baseRadius / zoom.scale
+      const found = layout.find(x, y, adjustedRadius)
+
       if (onlyCluster && found && found.data.cluster_id !== onlyCluster)
         return null
       return found
     }
-  }, [clusters, dimensions, filterFn])
+  }, [clusters, dimensions, filterFn, zoom])
 }
 
 export default useVoronoiFinder
