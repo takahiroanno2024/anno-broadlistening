@@ -38,7 +38,10 @@ function Report(props: ReportProps) {
     translations,
     clusters
   )
-
+  const [reportWidth, setReportWidth] = useState(450)
+  useEffect(() => {
+    setReportWidth(Math.min(window.innerWidth, 728))
+  }, [])
   // wait for one tick to avoid SSR issues
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -86,7 +89,7 @@ function Report(props: ReportProps) {
                 {...props}
                 translator={translator}
                 color={color}
-                width={450}
+                width={reportWidth}
                 height={450}
               />
               <button
@@ -132,7 +135,7 @@ function Report(props: ReportProps) {
                       {...props}
                       translator={translator}
                       color={color}
-                      width={350}
+                      width={reportWidth}
                       height={350}
                       onlyCluster={t(cluster.cluster_id)}
                     />

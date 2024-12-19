@@ -1,5 +1,5 @@
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import {faBookmark as solidBookmark} from '@fortawesome/free-solid-svg-icons'
+import {faBookmark as solidBookmark, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {useGesture} from '@use-gesture/react'
 import React, {useEffect, useRef, useState} from 'react'
@@ -510,7 +510,7 @@ function DesktopMap(props: MapProps) {
   return (
     <>
       <CustomTitle config={config}/>
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative">
         {/* 地図コンテナ */}
         <div
           ref={containerRef}
@@ -628,132 +628,140 @@ function DesktopMap(props: MapProps) {
           )}
           {/* BACK BUTTON と その他のボタン */}
           {fullScreen && (
-            <div className="absolute top-0 left-0">
-              <button className="m-2 underline" onClick={back}>
-                {t('Back to report')}
-              </button>
-              <button
-                className="m-2 underline"
-                onClick={() => setShowLabels(x => !x)}>
-                {showLabels ? t('Hide labels') : t('Show labels')}
-              </button>
-              <button
-                className="m-2 underline"
-                onClick={() => setShowFavorites(x => !x)}
-              >
-                {showFavorites ? t('お気に入りを非表示') : t('お気に入りを表示')}
-              </button>
-              <button
-                className="m-2 underline"
-                onClick={() => setShowTitle(x => !x)}
-              >
-                {showTitle ? t('タイトルを非表示') : t('タイトルを表示')}
-              </button>
-              <button
-                className="m-2 underline"
-                onClick={() => setShowRatio(x => !x)}
-              >
-                {showRatio ? t('割合を非表示') : t('割合を表示')}
-              </button>
-              {zoom.reset && (
-                <button
-                  className="m-2 underline"
-                  onClick={zoom.reset as any}
-                >
-                  {t('Reset zoom')}
-                </button>
-              )}
-              <input
-                type="text"
-                placeholder={t('検索')}
-                value={highlightText}
-                onChange={(e) => setHighlightText(e.target.value)}
-                className="w-20 m-2 p-2 border rounded"
-              />
+            <div className="absolute top-0 w-full p-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+              <div className={'flex justify-between items-center'}>
+                <div>
+                  <button className="m-2 underline" onClick={back}>
+                    {t('Back to report')}
+                  </button>
+                  <button
+                    className="m-2 underline"
+                    onClick={() => setShowLabels(x => !x)}>
+                    {showLabels ? t('Hide labels') : t('Show labels')}
+                  </button>
+                  <button
+                    className="m-2 underline"
+                    onClick={() => setShowTitle(x => !x)}
+                  >
+                    {showTitle ? t('タイトルを非表示') : t('タイトルを表示')}
+                  </button>
+                  <button
+                    className="m-2 underline"
+                    onClick={() => setShowRatio(x => !x)}
+                  >
+                    {showRatio ? t('割合を非表示') : t('割合を表示')}
+                  </button>
+                  {zoom.reset && (
+                    <button
+                      className="m-2 underline"
+                      onClick={zoom.reset as any}
+                    >
+                      {t('Reset zoom')}
+                    </button>
+                  )}
+                  <input
+                    type="text"
+                    placeholder={t('検索')}
+                    value={highlightText}
+                    onChange={(e) => setHighlightText(e.target.value)}
+                    className="w-20 mx-2 p-2 border rounded"
+                  />
 
-              {/* PROPERTY FILTER */}
-              {propertyMap && PropertyFilter(propertyMap, propertyFilter, setPropertyFilter, t)}
+                  {/* PROPERTY FILTER */}
+                  {propertyMap && PropertyFilter(propertyMap, propertyFilter, setPropertyFilter, t)}
 
-              {dataHasVotes && (
-                <button
-                  className="m-2 underline"
-                  onClick={() => {
-                    setShowFilters((x) => !x)
-                  }}
-                >
-                  {showFilters ? t('Hide filters') : t('Show filters')}
-                </button>
-              )}
-              {/* FILTERS */}
-              {showFilters && (
-                <div className="absolute w-[400px] top-12 left-2 p-2 border bg-white rounded leading-4">
-                  <div className="flex justify-between">
-                    <button className="inline-block m-2 text-left">
-                      {t('Votes')} {'>'}{' '}
-                      <span className="inline-block w-10">
+                  {dataHasVotes && (
+                    <button
+                      className="m-2 underline"
+                      onClick={() => {
+                        setShowFilters((x) => !x)
+                      }}
+                    >
+                      {showFilters ? t('Hide filters') : t('Show filters')}
+                    </button>
+                  )}
+                  {/* FILTERS */}
+                  {showFilters && (
+                    <div className="absolute w-[400px] top-12 left-2 p-2 border bg-white rounded leading-4">
+                      <div className="flex justify-between">
+                        <button className="inline-block m-2 text-left">
+                          {t('Votes')} {'>'}{' '}
+                          <span className="inline-block w-10">
                         {minVotes}
                       </span>
-                    </button>
-                    <input
-                      className="inline-block w-[200px] mr-2"
-                      id="min-votes-slider"
-                      type="range"
-                      min="0"
-                      max="50"
-                      value={minVotes}
-                      onInput={(e) => {
-                        setMinVotes(
-                          parseInt(
-                            (e.target as HTMLInputElement).value
-                          )
-                        )
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between">
-                    <button className="inline-block m-2 text-left">
-                      {t('Consensus')} {'>'}{' '}
-                      <span className="inline-block w-10">
+                        </button>
+                        <input
+                          className="inline-block w-[200px] mr-2"
+                          id="min-votes-slider"
+                          type="range"
+                          min="0"
+                          max="50"
+                          value={minVotes}
+                          onInput={(e) => {
+                            setMinVotes(
+                              parseInt(
+                                (e.target as HTMLInputElement).value
+                              )
+                            )
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <button className="inline-block m-2 text-left">
+                          {t('Consensus')} {'>'}{' '}
+                          <span className="inline-block w-10">
                         {minConsensus}%
                       </span>
-                    </button>
-                    <input
-                      className="inline-block w-[200px] mr-2"
-                      id="min-consensus-slider"
-                      type="range"
-                      min="50"
-                      max="100"
-                      value={minConsensus}
-                      onInput={(e) => {
-                        setMinConsensus(
-                          parseInt(
-                            (e.target as HTMLInputElement).value
-                          )
-                        )
-                      }}
-                    />
-                  </div>
-                  <div className="text-sm ml-2 mt-2 opacity-70">
-                    {t('Showing')} {voteFilter.filtered}/
-                    {voteFilter.total} {t('arguments')}
-                  </div>
+                        </button>
+                        <input
+                          className="inline-block w-[200px] mr-2"
+                          id="min-consensus-slider"
+                          type="range"
+                          min="50"
+                          max="100"
+                          value={minConsensus}
+                          onInput={(e) => {
+                            setMinConsensus(
+                              parseInt(
+                                (e.target as HTMLInputElement).value
+                              )
+                            )
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm ml-2 mt-2 opacity-70">
+                        {t('Showing')} {voteFilter.filtered}/
+                        {voteFilter.total} {t('arguments')}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+                <div>
+                  <button
+                    className="m-2 underline"
+                    onClick={() => setShowFavorites(x => !x)}
+                  >
+                    {showFavorites ? t('お気に入りを非表示') : t('お気に入りを表示')}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* お気に入り一覧 */}
-        {(!fullScreen || showFavorites) && (
+        {(fullScreen && showFavorites) && (
           <div
-            className="w-1/4 p-4 bg-gray-100 overflow-y-auto"
-            style={{
-              height: fullScreen ? '100vh' : `${height}px`,
-            }}
+            className="absolute top-0 right-0 w-[400px] p-4 bg-gray-100 overflow-y-auto z-10 h-full shadow-md"
           >
-            <h2 className="text-md font-bold mb-4">
-              {translator.t('お気に入り一覧')}
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-md font-bold">
+                {translator.t('お気に入り一覧')}
+              </h2>
+              <button onClick={() => {setShowFavorites(!showFavorites)}}>
+                <FontAwesomeIcon icon={faXmark as IconProp} size={'lg'} />
+              </button>
+            </div>
             {favorites.length === 0 ? (
               <p>{translator.t('お気に入りがありません')}</p>
             ) : (
