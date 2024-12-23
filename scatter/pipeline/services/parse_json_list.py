@@ -38,6 +38,12 @@ def parse_response(response):
 
     >>> parse_response('"a"')
     ['a']
+
+    >>> parse_response("[{'議論': 'A'}, {'議論': 'B'}, {'議論': 'C'}]")
+    ['A', 'B', 'C']
+
+    >>> parse_response('[]')
+    []
     """
     try:
         obj = json.loads(response)
@@ -62,16 +68,24 @@ def parse_response(response):
         obj = json.loads(json_str)  # ここでも例外の場合はそのまま外に投げる
         if isinstance(obj, str):
             obj = [obj]
+        if obj == []:
+            return []
+        if isinstance(obj[1], dict):
+            obj = [x["議論"] for x in obj]
         try:
             items = [a.strip() for a in obj]
         except Exception as e:
-            print("Error:", e)
-            print("Input was:", json_str)
-            print("Response was:", response)
-            print("JSON was:", obj)
-            print("skip")
+            report(response, json_str, obj, e)
             items = []
         return items
+
+
+def report(response, json_str, obj, e):
+    print("Response was:", response)
+    print("JSON was:", json_str)
+    print("parsed object was:", obj)
+    print(e)
+    print("skip")
 
 
 if __name__ == "__main__":
