@@ -1,0 +1,35 @@
+{
+  "name": "日本の未来について",
+  "question": "日本の未来に対してどんな意見が寄せられているのか？",
+  "input": "aipubcom",
+  "model": "gpt-4o-mini",
+  "extraction": {
+    "workers": 3,
+    "limit": 10000,
+    "properties": ["source"],
+    "categories": {
+      "sentiment": {
+        "positive": "肯定的な意見につけるカテゴリ",
+        "negative": "否定的な意見につけるカテゴリ",
+        "neutral": "中立的な意見につけるカテゴリ"
+      },
+      "genre": {
+        "vision": "理想的な方向性や目標像",
+        "current_status": "現状の分析",
+        "issues": "具体的な問題点・課題",
+        "strategy": "解決に向けた方針・戦略",
+        "actions": "具体的な施策・実行計画"
+      }
+    },
+    "category_batch_size": 5
+  },
+  "clustering": {
+    "clusters": 30
+  },
+  "aggregation": {
+    "hidden_properties": {
+      "source": []
+    }
+  },
+  "intro": "このAI生成レポートは、LLMによって生成されたダミーデータに対して分析を行っています。"
+}
