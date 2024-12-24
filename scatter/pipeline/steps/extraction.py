@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import logging
 import re
+import os
 
 import pandas as pd
 from tqdm import tqdm
@@ -46,11 +47,17 @@ def extraction(config):
         raise e
     comment_ids = (comments["comment-id"].values)[:limit]
     comments.set_index("comment-id", inplace=True)
-    results = pd.DataFrame()
     update_progress(config, total=len(comment_ids))
 
     existing_arguments = set()
+    if os.path.exists(path):
+        existing_args = pd.read_csv(path)
+        existing_comment_ids = set(existing_args["comment-id"].unique())
+        comment_ids = [c_id for c_id in comment_ids if c_id not in existing_comment_ids]
+    else:
+        existing_args = pd.DataFrame()
 
+    results = pd.DataFrame()
     for i in tqdm(range(0, len(comment_ids), workers)):
         batch = comment_ids[i : i + workers]
         batch_inputs = [comments.loc[id]["comment-body"] for id in batch]
@@ -79,7 +86,12 @@ def extraction(config):
     classification_categories = config["extraction"]["categories"]
     if classification_categories:
         results = classify_args(results, config, workers)
-    results.to_csv(path, index=False)
+
+    # 最終的に既存データと新規抽出分を結合
+    all_results = pd.concat([existing_args, results], ignore_index=True)
+
+    # 出力
+    all_results.to_csv(path, index=False)
 
 
 logging.basicConfig(level=logging.ERROR)
