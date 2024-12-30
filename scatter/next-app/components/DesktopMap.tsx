@@ -7,6 +7,7 @@ import {DesktopFullscreenTools} from '@/components/DesktopFullscreenTools'
 import Tooltip from '@/components/DesktopTooltip'
 import useAutoResize from '@/hooks/useAutoResize'
 import {ColorFunc} from '@/hooks/useClusterColor'
+import {PaletteType} from '@/hooks/useColorPalettes'
 import useFilter from '@/hooks/useFilter'
 import useInferredFeatures from '@/hooks/useInferredFeatures'
 import useRelativePositions from '@/hooks/useRelativePositions'
@@ -37,6 +38,8 @@ type MapProps = Result & {
     question?: string
   }
   propertyMap: PropertyMap
+  paletteType: PaletteType
+  setPaletteType: (type: PaletteType) => void
 }
 
 function DotCircles(
@@ -162,14 +165,19 @@ function DesktopMap(props: MapProps) {
     onlyCluster,
     comments,
     translator,
-    color,
+    color: initialColor,  // renamed to avoid confusion
     config,
-    propertyMap
+    propertyMap,
+    paletteType,
+    setPaletteType
   } = props
   const {dataHasVotes} = useInferredFeatures(props)
   const dimensions = useAutoResize(props.width, props.height)
   const clusters = useRelativePositions(props.clusters)
   const zoom = useZoom(dimensions, fullScreen)
+  
+  // Use the color function passed from props
+  const color = initialColor
 
   // for vote filter
   const [minVotes, setMinVotes] = useState(0)
@@ -601,6 +609,8 @@ function DesktopMap(props: MapProps) {
             setShowRatio={setShowRatio}
             showFavorites={showFavorites}
             setShowFavorites={setShowFavorites}
+            paletteType={paletteType}
+            setPaletteType={setPaletteType}
           />
         )}
         {/* フィルター一覧 */}

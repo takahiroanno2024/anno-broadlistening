@@ -8,6 +8,7 @@ import {
   TagIcon
 } from 'lucide-react'
 import React from 'react'
+import {PaletteType} from '@/hooks/useColorPalettes'
 import {Translator} from '@/hooks/useTranslatorAndReplacements'
 
 type Props = {
@@ -25,6 +26,8 @@ type Props = {
   setShowRatio: React.Dispatch<React.SetStateAction<boolean>>
   showFavorites: boolean
   setShowFavorites: React.Dispatch<React.SetStateAction<boolean>>
+  paletteType: PaletteType
+  setPaletteType: (type: PaletteType) => void
 }
 
 export function DesktopFullscreenTools(props: Props) {
@@ -33,6 +36,17 @@ export function DesktopFullscreenTools(props: Props) {
     <div className="absolute top-0 w-full p-2" style={{backgroundColor: 'rgba(255, 255, 255, 0.5)'}}>
       <div className={'flex justify-between items-center'}>
         <div className={'flex'}>
+          <select
+            className="w-[120px] m-1 px-2 py-1 rounded-lg bg-white text-gray-700 text-sm border border-gray-300 hover:border-gray-400"
+            value={props.paletteType}
+            onChange={(e) => props.setPaletteType(e.target.value as PaletteType)}
+          >
+            <option value="default">デフォルト</option>
+            <option value="colorUniversal">カラーユニバーサル</option>
+            <option value="proto">第一色覚</option>
+            <option value="deutero">第二色覚</option>
+            <option value="trito">第三色覚</option>
+          </select>
           {props.canFilter && (
             <button className="w-[80px] m-1 flex flex-col items-center" onClick={() => props.setShowSettings(x => !x)}>
               <SlidersHorizontalIcon className={props.showSettings ? 'text-blue-500' : 'text-gray-500'}/>
