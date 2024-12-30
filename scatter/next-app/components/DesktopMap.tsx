@@ -6,7 +6,7 @@ import {DesktopFullscreenFilter} from '@/components/DesktopFullscreenFilter'
 import {DesktopFullscreenTools} from '@/components/DesktopFullscreenTools'
 import Tooltip from '@/components/DesktopTooltip'
 import useAutoResize from '@/hooks/useAutoResize'
-import {ColorFunc} from '@/hooks/useClusterColor'
+import useClusterColor, {ColorFunc, colorPalettes} from '@/hooks/useClusterColor'
 import useFilter from '@/hooks/useFilter'
 import useInferredFeatures from '@/hooks/useInferredFeatures'
 import useRelativePositions from '@/hooks/useRelativePositions'
@@ -37,20 +37,35 @@ type MapProps = Result & {
     question?: string
   }
   propertyMap: PropertyMap
+  selectedPalette?: keyof typeof colorPalettes
+  setSelectedPalette?: React.Dispatch<React.SetStateAction<keyof typeof colorPalettes>>
 }
 
-function DotCircles(
-  clusters: Cluster[],
-  expanded: boolean,
-  tooltip: Point | null,
-  zoom: any,
-  scaleX: any,
-  scaleY: any,
-  color: any,
-  onlyCluster: string | undefined,
-  voteFilter: any,
+function DotCircles({
+  clusters,
+  expanded,
+  tooltip,
+  zoom,
+  scaleX,
+  scaleY,
+  color,
+  onlyCluster,
+  voteFilter,
+  filterFn,
+  selectedPalette,
+}: {
+  clusters: Cluster[]
+  expanded: boolean
+  tooltip: Point | null
+  zoom: any
+  scaleX: any
+  scaleY: any
+  color: ColorFunc
+  onlyCluster?: string
+  voteFilter: any
   filterFn: (arg: Argument) => boolean
-) {
+  selectedPalette: keyof typeof colorPalettes
+}) {
 
   return clusters.map((cluster) =>
     cluster.arguments.filter(voteFilter.filter).map((arg) => {
@@ -80,7 +95,7 @@ function DotCircles(
           id={arg_id}
           cx={zoom.zoomX(scaleX(x))}
           cy={zoom.zoomY(scaleY(y))}
-          fill={color(cluster.cluster_id, onlyCluster)}
+          fill={color(cluster.cluster_id, onlyCluster, selectedPalette)}
           r={calculatedRadius}
         />
       )
@@ -88,22 +103,39 @@ function DotCircles(
   )
 }
 
-function ClusterLabels(
-  clusters: Cluster[],
-  fullscreen: boolean,
-  expanded: boolean,
-  highlightText: string,
-  tooltip: Point | null,
-  zoom: any,
-  scaleX: any,
-  scaleY: any,
-  color: any,
-  t: any,
-  onlyCluster: string | undefined,
-  showLabels: boolean,
-  showRatio: boolean,
-  totalArgs: number,
-) {
+function ClusterLabels({
+  clusters,
+  fullscreen,
+  expanded,
+  highlightText,
+  tooltip,
+  zoom,
+  scaleX,
+  scaleY,
+  color,
+  t,
+  onlyCluster,
+  showLabels,
+  showRatio,
+  totalArgs,
+  selectedPalette,
+}: {
+  clusters: Cluster[]
+  fullscreen: boolean
+  expanded: boolean
+  highlightText: string
+  tooltip: Point | null
+  zoom: any
+  scaleX: any
+  scaleY: any
+  color: ColorFunc
+  t: any
+  onlyCluster?: string
+  showLabels: boolean
+  showRatio: boolean
+  totalArgs: number
+  selectedPalette: keyof typeof colorPalettes
+}) {
   if (!fullscreen || !showLabels || zoom.dragging) {
     return null
   }
@@ -140,7 +172,7 @@ function ClusterLabels(
               transform: 'translate(-50%, -50%)',
               left: zoom.zoomX(scaleX(mean(cluster.arguments.map(({x}) => x)))),
               top: zoom.zoomY(scaleY(mean(cluster.arguments.map(({y}) => y)))),
-              color: color(cluster.cluster_id, onlyCluster),
+              color: color(cluster.cluster_id, onlyCluster, selectedPalette),
               opacity: calculatedOpacity,
             }}
           >
@@ -162,10 +194,14 @@ function DesktopMap(props: MapProps) {
     onlyCluster,
     comments,
     translator,
-    color,
     config,
     propertyMap
   } = props
+  
+  const color = useClusterColor(
+    props.clusters.map((c) => c.cluster_id),
+    props.selectedPalette || 'default'
+  )
   const {dataHasVotes} = useInferredFeatures(props)
   const dimensions = useAutoResize(props.width, props.height)
   const clusters = useRelativePositions(props.clusters)
@@ -230,7 +266,7 @@ function DesktopMap(props: MapProps) {
     .reduce((a, b) => a + b, 0)
 
   const {scaleX, scaleY, width, height} = dimensions || {}
-  const {t} = translator
+  const {t} = props.translator
 
   const favoritesKey = `favorites_${window.location.href}`
 
@@ -509,18 +545,19 @@ function DesktopMap(props: MapProps) {
             })}
           >
             {/* DOT CIRCLES */}
-            {DotCircles(
-              clusters,
-              expanded,
-              tooltip,
-              zoom,
-              scaleX,
-              scaleY,
-              color,
-              onlyCluster,
-              voteFilter,
-              filterFn
-            )}
+            <DotCircles
+              clusters={clusters}
+              expanded={expanded}
+              tooltip={tooltip}
+              zoom={zoom}
+              scaleX={scaleX}
+              scaleY={scaleY}
+              color={color}
+              onlyCluster={onlyCluster}
+              voteFilter={voteFilter}
+              filterFn={filterFn}
+              selectedPalette={props.selectedPalette || 'default'}
+            />
             {/* お気に入りの表示 */}
             {showFavorites && (
               favorites.map((fav) => (
@@ -535,22 +572,23 @@ function DesktopMap(props: MapProps) {
             )}
           </svg>
           {/* CLUSTER LABELS */}
-          {ClusterLabels(
-            clusters,
-            fullScreen,
-            expanded,
-            highlightText,
-            tooltip,
-            zoom,
-            scaleX,
-            scaleY,
-            color,
-            t,
-            onlyCluster,
-            showLabels,
-            showRatio,
-            totalArgs
-          )}
+          <ClusterLabels
+            clusters={clusters}
+            fullscreen={fullScreen}
+            expanded={expanded}
+            highlightText={highlightText}
+            tooltip={tooltip}
+            zoom={zoom}
+            scaleX={scaleX}
+            scaleY={scaleY}
+            color={color}
+            t={t}
+            onlyCluster={onlyCluster}
+            showLabels={showLabels}
+            showRatio={showRatio}
+            totalArgs={totalArgs}
+            selectedPalette={props.selectedPalette || 'default'}
+          />
 
           {/* TOOLTIP */}
           {tooltip && (
@@ -601,6 +639,8 @@ function DesktopMap(props: MapProps) {
             setShowRatio={setShowRatio}
             showFavorites={showFavorites}
             setShowFavorites={setShowFavorites}
+            selectedPalette={props.selectedPalette || 'default'}
+            setSelectedPalette={props.setSelectedPalette}
           />
         )}
         {/* フィルター一覧 */}
@@ -627,7 +667,7 @@ function DesktopMap(props: MapProps) {
             favorites={favorites}
             clusters={clusters}
             translator={translator}
-            color={color}
+            color={(clusterId, onlyCluster) => color(clusterId, onlyCluster, props.selectedPalette || 'default')}
             onlyCluster={onlyCluster}
             removeFavorite={(fav) => {
               setFavorites((prev) => prev.filter((item) => item.arg_id !== fav.arg_id))

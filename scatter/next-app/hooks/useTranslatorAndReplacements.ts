@@ -55,6 +55,12 @@ const JapaneseUI: { [key: string]: string } = {
   toolsResetPosition: '初期位置に戻す',
   toolsDisplayFavorites: 'お気に入り一覧',
   toolsFilterSettings: 'フィルター設定',
+  toolsColorPalette: 'カラーパレット',
+  paletteDefault: 'デフォルト',
+  paletteColorBlindSafe: 'カラーユニバーサル',
+  paletteDeuteranopia: '第二色覚',
+  paletteProtanopia: '第一色覚',
+  paletteTritanopia: '第三色覚',
 }
 
 const useTranslatorAndReplacements = (
