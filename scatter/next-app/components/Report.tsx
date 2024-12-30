@@ -1,4 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react'
+import useClusterColor from '../hooks/useClusterColor'
+import {PaletteType, colorPalettes} from '../hooks/useColorPalettes'
+import useTranslatorAndReplacements from '../hooks/useTranslatorAndReplacements'
+import {Result} from '../types'
 import AfterAppendix from './AfterAppendix'
 import Appendix from './Appendix'
 import CustomHeader from './CustomHeader'
@@ -7,9 +11,6 @@ import DesktopMap from './DesktopMap'
 import Header from './Header'
 import MobileMap from './MobileMap'
 import Outline from './Outline'
-import useClusterColor from '@/hooks/useClusterColor'
-import useTranslatorAndReplacements from '@/hooks/useTranslatorAndReplacements'
-import {Result} from '@/types'
 
 type ReportProps = Result
 
@@ -31,7 +32,28 @@ const ResponsiveMap = (props: any) => {
 function Report(props: ReportProps) {
   const [openMap, setOpenMap] = useState<string | null>(null)
   const {config, clusters, translations, overview} = props
-  const color = useClusterColor(clusters.map((c) => c.cluster_id))
+  const [paletteType, setPaletteType] = useState<PaletteType>(() => {
+    // Try to restore from localStorage if available
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedPalette')
+      if (saved && Object.keys(colorPalettes).includes(saved)) {
+        return saved as PaletteType
+      }
+    }
+    return 'default'
+  })
+
+  // Save palette selection to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedPalette', paletteType)
+    }
+  }, [paletteType])
+
+  const color = useClusterColor(
+    clusters.map((c) => c.cluster_id),
+    colorPalettes[paletteType]
+  )
   const scroll = useRef(0)
   const translator = useTranslatorAndReplacements(
     config,
@@ -60,6 +82,8 @@ function Report(props: ReportProps) {
         {...props}
         color={color}
         translator={translator}
+        paletteType={paletteType}
+        setPaletteType={setPaletteType}
         back={() => {
           setOpenMap(null)
           setTimeout(() => window.scrollTo({top: scroll.current}), 0)
@@ -91,6 +115,8 @@ function Report(props: ReportProps) {
                 color={color}
                 width={reportWidth}
                 height={450}
+                paletteType={paletteType}
+                setPaletteType={setPaletteType}
               />
               <button
                 className="my-2 underline"
@@ -138,6 +164,8 @@ function Report(props: ReportProps) {
                       width={reportWidth}
                       height={350}
                       onlyCluster={t(cluster.cluster_id)}
+                      paletteType={paletteType}
+                      setPaletteType={setPaletteType}
                     />
                     <button
                       className="my-2 underline"
