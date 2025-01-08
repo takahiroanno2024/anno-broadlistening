@@ -1,7 +1,8 @@
-import {XIcon} from 'lucide-react'
+import { XIcon } from 'lucide-react'
 import React from 'react'
-import {Translator} from '@/hooks/useTranslatorAndReplacements'
-import {Argument, PropertyMap} from '@/types'
+import { PaletteType } from '@/hooks/useColorPalettes'
+import { Translator } from '@/hooks/useTranslatorAndReplacements'
+import { Argument, PropertyMap } from '@/types'
 
 type Props = {
   translator: Translator
@@ -26,7 +27,7 @@ type Props = {
 }
 
 export function DesktopFullscreenFilter(props: Props) {
-  const {t} = props.translator
+  const { t } = props.translator
   return (
     <div
       className="absolute top-0 left-0 w-[400px] p-4 bg-gray-100 overflow-y-auto z-10 h-full shadow-md"
@@ -37,7 +38,7 @@ export function DesktopFullscreenFilter(props: Props) {
           {t('toolsFilterSettings')}
         </h2>
         <button onClick={props.onClose}>
-          <XIcon/>
+          <XIcon />
         </button>
       </div>
       {/* Search */}

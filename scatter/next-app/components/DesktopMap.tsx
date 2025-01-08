@@ -1,21 +1,21 @@
-import {useGesture} from '@use-gesture/react'
-import React, {useEffect, useRef, useState} from 'react'
+import { useGesture } from '@use-gesture/react'
+import React, { useEffect, useRef, useState } from 'react'
 import CustomTitle from '@/components/CustomTitle'
-import {DesktopFullscreenFavorites} from '@/components/DesktopFullscreenFavorites'
-import {DesktopFullscreenFilter} from '@/components/DesktopFullscreenFilter'
-import {DesktopFullscreenTools} from '@/components/DesktopFullscreenTools'
+import { DesktopFullscreenFavorites } from '@/components/DesktopFullscreenFavorites'
+import { DesktopFullscreenFilter } from '@/components/DesktopFullscreenFilter'
+import { DesktopFullscreenTools } from '@/components/DesktopFullscreenTools'
 import Tooltip from '@/components/DesktopTooltip'
 import useAutoResize from '@/hooks/useAutoResize'
-import {ColorFunc} from '@/hooks/useClusterColor'
-import {PaletteType} from '@/hooks/useColorPalettes'
+import { ColorFunc } from '@/hooks/useClusterColor'
+import { PaletteType } from '@/hooks/useColorPalettes'
 import useFilter from '@/hooks/useFilter'
 import useInferredFeatures from '@/hooks/useInferredFeatures'
 import useRelativePositions from '@/hooks/useRelativePositions'
-import {Translator} from '@/hooks/useTranslatorAndReplacements'
+import { Translator } from '@/hooks/useTranslatorAndReplacements'
 import useVoronoiFinder from '@/hooks/useVoronoiFinder'
 import useZoom from '@/hooks/useZoom'
-import {Argument, Cluster, FavoritePoint, Point, PropertyMap, Result} from '@/types'
-import {mean} from '@/utils'
+import { Argument, Cluster, FavoritePoint, Point, PropertyMap, Result } from '@/types'
+import { mean } from '@/utils'
 
 type TooltipPosition = {
   x: number
@@ -57,7 +57,7 @@ function DotCircles(
 
   return clusters.map((cluster) =>
     cluster.arguments.filter(voteFilter.filter).map((arg) => {
-      const {arg_id, x, y} = arg
+      const { arg_id, x, y } = arg
       const isCurrentTooltip = tooltip?.arg_id === arg_id
 
       let dotClass = 'default'
@@ -141,8 +141,8 @@ function ClusterLabels(
             key={cluster.cluster_id}
             style={{
               transform: 'translate(-50%, -50%)',
-              left: zoom.zoomX(scaleX(mean(cluster.arguments.map(({x}) => x)))),
-              top: zoom.zoomY(scaleY(mean(cluster.arguments.map(({y}) => y)))),
+              left: zoom.zoomX(scaleX(mean(cluster.arguments.map(({ x }) => x)))),
+              top: zoom.zoomY(scaleY(mean(cluster.arguments.map(({ y }) => y)))),
               color: color(cluster.cluster_id, onlyCluster),
               opacity: calculatedOpacity,
             }}
@@ -171,11 +171,11 @@ function DesktopMap(props: MapProps) {
     paletteType,
     setPaletteType
   } = props
-  const {dataHasVotes} = useInferredFeatures(props)
+  const { dataHasVotes } = useInferredFeatures(props)
   const dimensions = useAutoResize(props.width, props.height)
   const clusters = useRelativePositions(props.clusters)
   const zoom = useZoom(dimensions, fullScreen)
-  
+
   // Use the color function passed from props
   const color = initialColor
 
@@ -237,8 +237,8 @@ function DesktopMap(props: MapProps) {
     .map((c) => c.arguments.length)
     .reduce((a, b) => a + b, 0)
 
-  const {scaleX, scaleY, width, height} = dimensions || {}
-  const {t} = translator
+  const { scaleX, scaleY, width, height } = dimensions || {}
+  const { t } = translator
 
   const favoritesKey = `favorites_${window.location.href}`
 
@@ -252,7 +252,7 @@ function DesktopMap(props: MapProps) {
       return []
     }
   })
-  const [zoomState, setZoomState] = useState({scale: 1, x: 0, y: 0})
+  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 })
   const [isZoomEnabled] = useState(true)
 
   useEffect(() => {
@@ -268,22 +268,22 @@ function DesktopMap(props: MapProps) {
 
   const bind = useGesture(
     {
-      onDrag: ({movement: [mx, my], cancel, direction: [dx, dy], memo}) => {
+      onDrag: ({ movement: [mx, my], cancel, direction: [dx, dy], memo }) => {
         if (!isZoomEnabled) return memo
         if (Math.abs(dy) > Math.abs(dx)) {
           cancel() // ドラッグをキャンセルしてスクロールを許可
           return memo
         }
         // 水平方向のドラッグの場合、地図のパンを処理
-        setZoomState((prev) => ({...prev, x: prev.x + mx, y: prev.y + my}))
+        setZoomState((prev) => ({ ...prev, x: prev.x + mx, y: prev.y + my }))
         return memo
       },
-      onPinch: ({offset: [d], memo}) => {
+      onPinch: ({ offset: [d], memo }) => {
         const newScale = Math.min(Math.max(d, 0.5), 4)
-        setZoomState((prev) => ({...prev, scale: newScale}))
+        setZoomState((prev) => ({ ...prev, scale: newScale }))
         return memo
       },
-      onClick: ({event}) => {
+      onClick: ({ event }) => {
         handleTap(event)
       },
     },
@@ -293,7 +293,7 @@ function DesktopMap(props: MapProps) {
         threshold: 5,
       },
       pinch: {
-        scaleBounds: {min: 0.5, max: 4},
+        scaleBounds: { min: 0.5, max: 4 },
       },
     }
   )
@@ -314,7 +314,7 @@ function DesktopMap(props: MapProps) {
 
     if (!dimensions) return
 
-    const {width: dimensionsWidth, height: containerHeight} = dimensions
+    const { width: dimensionsWidth, height: containerHeight } = dimensions
     const containerWidth = fullScreen ? dimensionsWidth * 0.75 : dimensionsWidth
 
     const margin = fullScreen ? 0.6 : 0.8
@@ -331,7 +331,7 @@ function DesktopMap(props: MapProps) {
 
     // zoomState が変更される場合のみ setZoomState を呼び出す
     if (zoomState.scale !== scale || zoomState.x !== x || zoomState.y !== y) {
-      setZoomState({scale, x, y})
+      setZoomState({ scale, x, y })
     }
 
   }, [clusters, dimensions, fullScreen])
@@ -362,11 +362,11 @@ function DesktopMap(props: MapProps) {
       if (y + TOOLTIP_HEIGHT > containerHeight) {
         y = containerHeight - TOOLTIP_HEIGHT - TOOLTIP_MARGIN
       }
-      return {x, y}
+      return { x, y }
     }
 
     console.warn('containerRef.current is undefined')
-    return {x: 0, y: 0}
+    return { x: 0, y: 0 }
   }
 
   if (!dimensions) {
@@ -374,7 +374,7 @@ function DesktopMap(props: MapProps) {
     return (
       <div
         className="m-auto bg-blue-50"
-        style={{width: props.width, height: props.height}}
+        style={{ width: props.width, height: props.height }}
       />
     )
   }
@@ -439,7 +439,7 @@ function DesktopMap(props: MapProps) {
 
     console.log(`Tap event at (${clientX}, ${clientY})`)
 
-    const clickedPoint = findPoint({clientX, clientY})
+    const clickedPoint = findPoint({ clientX, clientY })
     if (clickedPoint) {
       const newPosition = calculateTooltipPosition(clientX, clientY)
       console.log('Tapped point found:', clickedPoint.data)
@@ -474,7 +474,7 @@ function DesktopMap(props: MapProps) {
 
   return (
     <>
-      <CustomTitle config={config}/>
+      <CustomTitle config={config} />
       <div className="flex flex-1 relative">
         {/* 地図コンテナ */}
         <div
