@@ -21,6 +21,8 @@ type Props = {
     filtered: number
     filter: (arg: Argument) => boolean
   }
+  paletteType: PaletteType
+  setPaletteType: (type: PaletteType) => void
 }
 
 export function DesktopFullscreenFilter(props: Props) {
@@ -77,6 +79,20 @@ export function DesktopFullscreenFilter(props: Props) {
           )
         })}
       </dl>
+
+      カラーパレット
+      <select
+        className="w-[120px] m-1 px-2 py-1 rounded-lg bg-white text-gray-700 text-sm border border-gray-300 hover:border-gray-400"
+        value={props.paletteType}
+        onChange={(e) => props.setPaletteType(e.target.value as PaletteType)}
+      >
+        <option value="default">デフォルト</option>
+        <option value="colorUniversal">カラーユニバーサル</option>
+        <option value="proto">第一色覚</option>
+        <option value="deutero">第二色覚</option>
+        <option value="trito">第三色覚</option>
+      </select>
+
 
       {/* Votes */}
       {props.dataHasVotes && (

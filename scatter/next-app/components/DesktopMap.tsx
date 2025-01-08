@@ -609,8 +609,6 @@ function DesktopMap(props: MapProps) {
             setShowRatio={setShowRatio}
             showFavorites={showFavorites}
             setShowFavorites={setShowFavorites}
-            paletteType={paletteType}
-            setPaletteType={setPaletteType}
           />
         )}
         {/* フィルター一覧 */}
@@ -629,6 +627,8 @@ function DesktopMap(props: MapProps) {
             minConsensus={minConsensus}
             setMinConsensus={setMinConsensus}
             voteFilter={voteFilter}
+            paletteType={paletteType}
+            setPaletteType={setPaletteType}
           />
         )}
         {/* お気に入り一覧 */}
