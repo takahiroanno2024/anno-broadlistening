@@ -1,0 +1,28 @@
+[project]
+name = "anno-broadlistening"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "bertopic==0.15.0",
+    "hdbscan==0.8.33",
+    "huggingface-hub==0.25.1",
+    "janome==0.5.0",
+    "langchain==0.3.4",
+    "langchain-community==0.3.3",
+    "langchain-openai==0.2.3",
+    "nltk==3.9.1",
+    "numpy==1.26.2",
+    "openai==1.58.1",
+    "pandas==2.1.1",
+    "path==16.7.1",
+    "regex==2024.11.6",
+    "scikit-learn==1.5.0",
+    "sentence-transformers==2.2.2",
+    "spacy==3.7.0",
+    "tiktoken==0.8.0",
+    "torch==2.0.1",
+    "tqdm==4.66.1",
+    "umap-learn==0.5.4",
+]

@@ -140,7 +140,7 @@ def initialization(sysargv):
             config["force"] = True
         if option == "-o":
             config["only"] = sysargv[i + 1]
-        if option == "-skip-interaction":
+        if option == "--skip-interaction":
             config["skip-interaction"] = True
 
     output_dir = config["output_dir"]

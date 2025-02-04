@@ -1,11 +1,12 @@
 openai==1.58.1
-numpy==1.25.2
+numpy==1.26.2
 scikit-learn==1.5.0
 umap-learn==0.5.4
 pandas==2.1.1
 path==16.7.1
 sentence-transformers==2.2.2
 spacy==3.7.0
+torch==2.0.1
 hdbscan==0.8.33
 bertopic==0.15.0
 tqdm==4.66.1
@@ -15,3 +16,5 @@ janome==0.5.0
 langchain-openai==0.2.3
 langchain-community==0.3.3
 huggingface-hub==0.25.1
+nltk==3.9.1
+regex==2024.11.6

@@ -1,0 +1,36 @@
+# ソース管理関連
+.git
+.gitignore
+
+# Python のキャッシュおよびバイトコード
+__pycache__
+*.py[cod]
+*.pyo
+*.pyd
+
+# 仮想環境ディレクトリ（例: venv, .venv, env）
+venv
+.env
+.venv
+env
+
+# Node.js の依存関係やログ
+node_modules
+npm-debug.log
+yarn-error.log
+
+# ビルド成果物・ディレクトリ
+dist
+build
+*.egg-info
+
+# ログファイル
+*.log
+
+# システム固有のキャッシュやファイル
+.DS_Store
+
+# NLTK のデータ（ビルド時に生成される場合、コンテキストに含めない）
+nltk_data
+
+node_modules

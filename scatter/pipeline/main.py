@@ -21,30 +21,31 @@ def parse_arguments():
         description="Run the annotation pipeline with optional flags."
     )
     parser.add_argument(
-        "config",
-        help="Path to config JSON file that defines the pipeline execution."
+        "config", help="Path to config JSON file that defines the pipeline execution."
     )
     parser.add_argument(
-        "-f", "--force",
+        "-f",
+        "--force",
         action="store_true",
-        help="Force re-run all steps regardless of previous execution."
+        help="Force re-run all steps regardless of previous execution.",
     )
     parser.add_argument(
-        "-o", "--only",
+        "-o",
+        "--only",
         type=str,
-        help="Run only the specified step (e.g., extraction, embedding, clustering, etc.)."
+        help="Run only the specified step (e.g., extraction, embedding, clustering, etc.).",
     )
     parser.add_argument(
         "--skip-interaction",
         action="store_true",
-        help="Skip the interactive confirmation prompt and run pipeline immediately."
+        help="Skip the interactive confirmation prompt and run pipeline immediately.",
     )
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
-    
+
     # Convert argparse namespace to sys.argv format for compatibility
     new_argv = [sys.argv[0], args.config]
     if args.force:
@@ -52,8 +53,8 @@ def main():
     if args.only:
         new_argv.extend(["-o", args.only])
     if args.skip_interaction:
-        new_argv.append("-skip-interaction")
-    
+        new_argv.append("--skip-interaction")
+
     config = initialization(new_argv)
 
     try:
