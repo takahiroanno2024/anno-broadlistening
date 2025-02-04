@@ -23,11 +23,11 @@ export function About({meta}: AboutProps) {
         alt={meta.reporterName}
       />
       <Text fontSize={'sm'} mb={5} whiteSpace={'pre-line'}>
-        {meta.aboutMessage}
+        {meta.projectMessage}
       </Text>
       <VStack>
-        {meta.aboutLink && (
-          <Link href={meta.aboutLink} target={'_blank'} rel={'noopener noreferrer'}>
+        {meta.projectLink && (
+          <Link href={meta.projectLink} target={'_blank'} rel={'noopener noreferrer'}>
             <Button size={'xl'} w={'300px'}>プロジェクトを開く<ExternalLinkIcon /></Button>
           </Link>
         )}
