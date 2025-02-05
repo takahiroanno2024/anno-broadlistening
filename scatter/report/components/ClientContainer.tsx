@@ -22,7 +22,7 @@ export function ClientContainer({resultSize, meta}: Props) {
   }, [])
 
   async function fetchReport() {
-    const response = await fetch('/hierarchical_result.json')
+    const response = await fetch('./hierarchical_result.json')
     const reader = response.body?.getReader()
     let loaded = 0
     if (reader) {
