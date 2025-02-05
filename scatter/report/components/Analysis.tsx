@@ -45,8 +45,7 @@ export function Analysis({result}: ReportProps) {
                 <TimelineContent>
                   <TimelineTitle fontWeight={'bold'}>抽出 ({result.config.extraction.model})</TimelineTitle>
                   <TimelineDescription>
-                    コメントデータから議論を抽出するステップです。<br />
-                    指定されたプロパティカラムを検証し、コメントIDを制限してバッチ処理を行います。
+                    コメントデータから議論（意見）を抽出するステップです。<br />
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
@@ -79,8 +78,7 @@ export function Analysis({result}: ReportProps) {
                 <TimelineContent>
                   <TimelineTitle fontWeight={'bold'}>クラスタリング</TimelineTitle>
                   <TimelineDescription>
-                    UMAPとHDBSCANを使用して、議論のクラスタリングを行うステップです。<br />
-                    これにより、議論が階層的にグループ化されます。
+                    埋め込みベクトルの値に基づいて議論の階層クラスタリングを行うステップです。<br />
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
@@ -94,8 +92,8 @@ export function Analysis({result}: ReportProps) {
                 <TimelineContent>
                   <TimelineTitle fontWeight={'bold'}>初期ラベリング ({result.config.hierarchical_initial_labelling.model})</TimelineTitle>
                   <TimelineDescription>
-                    初期クラスタにラベルを付けるステップです。<br />
-                    各クラスタに対して適切なラベルを生成します。
+                    クラスタリングの結果に対して、各クラスタに適切なタイトル・説明文を生成（ラベリング）するステップです。<br />
+                    このステップでは、最も細かい粒度のクラスタ（最下層のクラスタ）に対して、各クラスタに属する議論に基づいてクラスタのタイトルと説明文を生成します。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
@@ -113,8 +111,8 @@ export function Analysis({result}: ReportProps) {
                 <TimelineContent>
                   <TimelineTitle fontWeight={'bold'}>統合ラベリング ({result.config.hierarchical_merge_labelling.model})</TimelineTitle>
                   <TimelineDescription>
-                    階層的クラスタリングの結果に対して、クラスタをマージしながらラベリングを行うステップです。<br />
-                    これにより、分割されすぎたクラスタを統合し、統合後のクラスタに適切なラベルを付けます。
+                    階層的クラスタリングの結果に対して、クラスタをマージしながらタイトル・説明文を生成（ラベリング）するステップです。<br />
+                    このステップでは、下層のクラスタのタイトル及び説明文と、議論に基づいて上層のクラスタのタイトル及び説明文を生成します。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
@@ -133,7 +131,7 @@ export function Analysis({result}: ReportProps) {
                   <TimelineTitle fontWeight={'bold'}>要約 ({result.config.hierarchical_overview.model})</TimelineTitle>
                   <TimelineDescription>
                     クラスタの概要を作成するステップです。<br />
-                    各クラスタの要約を生成し、全体の概要をまとめます。
+                    各クラスタのタイトル及び説明文をもとに、全体の概要をまとめます。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
@@ -151,8 +149,8 @@ export function Analysis({result}: ReportProps) {
                 <TimelineContent>
                   <TimelineTitle fontWeight={'bold'}>出力</TimelineTitle>
                   <TimelineDescription>
-                    最終的な結果をJSON形式で出力するステップです。<br />
-                    議論、クラスタ、コメント、プロパティマップなどを含む便利なJSONファイルを生成します。
+                    最終的な結果を出力するステップです。<br />
+                    議論および各分析結果を含むJSONファイルを出力します。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
