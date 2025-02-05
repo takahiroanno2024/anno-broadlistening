@@ -84,6 +84,10 @@ type Config = {
     hidden_properties: Record<string, string[]> // 非表示プロパティ情報
     source_code: string // 集約スクリプト
   }
+  hierarchical_visualization: {
+    replacements: Record<string, string[]>
+    source_code: string // 集約スクリプト
+  }
   plan: {
     step: string // ステップ名
     run: boolean | string // 実行すべきか（真偽値 or 文字列）

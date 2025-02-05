@@ -160,6 +160,21 @@ export function Analysis({result}: ReportProps) {
                   </HStack>
                 </TimelineContent>
               )}
+              {p.step === 'hierarchical_visualization' && (
+                <TimelineContent>
+                  <TimelineTitle fontWeight={'bold'}>表示</TimelineTitle>
+                  <TimelineDescription>
+                    出力されたJSONファイルをグラフィカルに表示するステップです。<br />
+                    クラスタの概要、議論の内容などを可視化します。あなたが見ているこの画面です。
+                  </TimelineDescription>
+                  <HStack>
+                    <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({
+                      title: `表示 - ${p.step}`,
+                      body: result.config.hierarchical_visualization.source_code
+                    })}>ソースコード</Button>
+                  </HStack>
+                </TimelineContent>
+              )}
             </TimelineItem>
           ))}
         </TimelineRoot>

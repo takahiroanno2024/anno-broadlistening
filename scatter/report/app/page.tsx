@@ -1,15 +1,15 @@
 import fs from 'fs'
-import { Report } from '@/components/Report'
-import {Analysis} from '@/components/Analysis'
 import type {Metadata} from 'next'
 import {Heading, HStack, Image, Text} from '@chakra-ui/react'
-import {About} from '@/components/About'
 import {XIcon} from 'lucide-react'
 import {BroadlisteningGuide} from '@/components/BroadlisteningGuide'
 import {Meta} from '@/type'
+import {ClientContainer} from '@/components/ClientContainer'
 
 const file = fs.readFileSync(`../pipeline/outputs/${process.env.REPORT}/hierarchical_result.json`, 'utf8')
+const resultSize = Buffer.byteLength(file, 'utf8')
 const result = JSON.parse(file)
+
 let meta: Meta | null = null
 const metaFilePath = `../pipeline/outputs/${process.env.REPORT}/metadata.json`
 if (fs.existsSync(metaFilePath)) {
@@ -18,8 +18,11 @@ if (fs.existsSync(metaFilePath)) {
 }
 
 export const metadata: Metadata = {
-  title: `${result.config.question} - デジタル民主主義2030 ブロードリスニング`,
-  description: `${result.config.question} ${result.overview}`,
+  title: `${result.config.question} - ${meta?.reporterName} デジタル民主主義2030 ブロードリスニング`,
+  description: `${result.overview}`,
+  icons: {
+    icon: '/icon.png',
+  },
 }
 
 export default function Page() {
@@ -51,9 +54,7 @@ export default function Page() {
           </HStack>
           <BroadlisteningGuide/>
         </HStack>
-        <Report result={result} />
-        <Analysis result={result} />
-        {meta && (<About meta={meta} />)}
+        <ClientContainer resultSize={resultSize} meta={meta} />
       </div>
       <footer>
         {meta && (<Text fontWeight={'bold'}>{meta.reporterName}</Text>)}

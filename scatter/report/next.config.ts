@@ -25,11 +25,15 @@ let nextConfig: NextConfig = {
   env: { REPORT: report },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      const sourceImage = path.resolve(`../pipeline/outputs/${process.env.REPORT}/reporter.png`)
-      const destinationImage = path.resolve('./public/reporter.png')
-      if (fs.existsSync(sourceImage)) {
-        fs.copyFileSync(sourceImage, destinationImage)
-      }
+      const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png']
+      filesToCopy.forEach(file => {
+        const sourcePath = path.resolve(`../pipeline/outputs/${process.env.REPORT}/${file}`)
+        const destinationPath = path.resolve(`./public/${file}`)
+        if (fs.existsSync(sourcePath)) {
+          console.log(` ✓ Copied ${file}`)
+          fs.copyFileSync(sourcePath, destinationPath)
+        }
+      })
     }
     return config
   }

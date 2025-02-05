@@ -45,3 +45,5 @@ next-env.d.ts
 
 # temporary
 /public/reporter.png
+/public/hierarchical_result.json
+/public/metadata.json

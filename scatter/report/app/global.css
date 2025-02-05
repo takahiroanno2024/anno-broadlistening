@@ -17,7 +17,7 @@ body {
   border-radius: 2rem;
   background-color: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  min-height: calc(100vh - 3rem);
+  min-height: calc(85vh);
   color: #555;
 }
 footer {
