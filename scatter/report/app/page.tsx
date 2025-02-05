@@ -11,7 +11,7 @@ import {Meta} from '@/type'
 const file = fs.readFileSync(`../pipeline/outputs/${process.env.REPORT}/hierarchical_result.json`, 'utf8')
 const result = JSON.parse(file)
 let meta: Meta | null = null
-const metaFilePath = `../pipeline/outputs/${process.env.REPORT}/meta.json`
+const metaFilePath = `../pipeline/outputs/${process.env.REPORT}/metadata.json`
 if (fs.existsSync(metaFilePath)) {
   const metaFile = fs.readFileSync(metaFilePath, 'utf8')
   meta = JSON.parse(metaFile)
