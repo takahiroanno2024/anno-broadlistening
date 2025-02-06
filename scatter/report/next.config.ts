@@ -6,7 +6,7 @@ const report = process.env.REPORT
 if (!report) {
   console.log('\n┌──────────────────────────────────────────┐')
   console.log('│                                          │')
-  console.log('│        [ Broadlistening Report ]         │')
+  console.log('│        [ Broadlistening Chart ]         │')
   console.log('│                                          │')
   console.log('│   ERROR: Please set process.env.REPORT   │')
   console.log('│     (`REPORT=example npm run build`)     │')

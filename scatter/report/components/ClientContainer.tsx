@@ -1,20 +1,26 @@
 'use client'
 
-import {Report} from '@/components/Report'
+import {Chart} from '@/components/Chart'
 import {Analysis} from '@/components/Analysis'
-import {useEffect, useState} from 'react'
-import {Box, HStack, Progress} from '@chakra-ui/react'
-import {Skeleton, SkeletonText} from '@/components/ui/skeleton'
+import React, {PropsWithChildren, useEffect, useState} from 'react'
+import {Skeleton} from '@/components/ui/skeleton'
 import {About} from '@/components/About'
-import {Meta} from '@/type'
+import {Meta, Result} from '@/type'
+import {LoadingBar} from '@/components/LoadingBar'
 
 type Props = {
   resultSize: number
   meta: Meta | null
 }
 
-export function ClientContainer({resultSize, meta}: Props) {
-  const [result, setResult] = useState()
+// NOTE これはなにか？
+// hierarchical_result.json はサイズの大きいJSONファイルである
+// 全て事前レンダリングしてしまうと html ファイルが巨大になるので初期表示が重くなってしまう
+// そのためJSONファイルはクライアント側で fetch して Chart と Analysis に渡している
+// それ以外のコンポーネント群は事前レンダリングしたほうが高速なので親要素から受け取っている
+// 最終的にページが完成する速度は大差ないが、先に出せるものを出すことで、体感として高速に感じるようにしている
+export function ClientContainer({resultSize, meta, children}: PropsWithChildren<Props>) {
+  const [result, setResult] = useState<Result>()
   const [loadedSize, setLoadedSize] = useState(0)
 
   useEffect(() => {
@@ -47,30 +53,18 @@ export function ClientContainer({resultSize, meta}: Props) {
 
   if (!result) {
     return (
-      <Box mx={'auto'} maxW={'800px'} p={5}>
-        <Progress.Root
-          value={loadedSize}
-          max={resultSize}
-          colorPalette={'cyan'}
-          size={'xl'}
-          mb={10}
-        >
-          <HStack gap="5">
-            <Progress.Track flex="1">
-              <Progress.Range />
-            </Progress.Track>
-            <Progress.ValueText>{Math.floor(loadedSize / 1024).toLocaleString()} KB / {Math.floor(resultSize / 1024).toLocaleString()} KB</Progress.ValueText>
-          </HStack>
-        </Progress.Root>
-        <Skeleton height="50px" mb={5} />
-        <SkeletonText noOfLines={4} gap="4" />
-        <Skeleton height="400px" mt={10} />
-      </Box>
+      <>
+        <LoadingBar loaded={loadedSize} max={resultSize} />
+        <Skeleton height="516px" mb={5} mx={'auto'} w={'100%'} maxW={'1200px'} />
+        { children }
+        <LoadingBar loaded={loadedSize} max={resultSize} />
+      </>
     )
   }
   return (
     <>
-      <Report result={result} />
+      <Chart result={result} />
+      { children }
       <Analysis result={result} />
       {result && meta && (<About meta={meta} />)}
     </>
