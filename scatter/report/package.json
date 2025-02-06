@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "postinstall": "next build",
     "build": "next build",
     "start": "npx serve ../pipeline/outputs/${REPORT}/report",
     "lint": "next lint"

@@ -19,6 +19,7 @@ type Props = {
 // そのためJSONファイルはクライアント側で fetch して Chart と Analysis に渡している
 // それ以外のコンポーネント群は事前レンダリングしたほうが高速なので親要素から受け取っている
 // 最終的にページが完成する速度は大差ないが、先に出せるものを出すことで、体感として高速に感じるようにしている
+
 export function ClientContainer({resultSize, meta, children}: PropsWithChildren<Props>) {
   const [result, setResult] = useState<Result>()
   const [loadedSize, setLoadedSize] = useState(0)

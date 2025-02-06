@@ -3,7 +3,11 @@ import {XIcon} from 'lucide-react'
 import {BroadlisteningGuide} from '@/components/BroadlisteningGuide'
 import {Meta} from '@/type'
 
-export function Header({meta}: {meta: Meta | null}) {
+type Props = {
+  meta: Meta | null
+}
+
+export function Header({meta}: Props) {
   return (
     <HStack justify="space-between" mb={8}>
       <HStack>
