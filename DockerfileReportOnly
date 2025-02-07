@@ -1,15 +1,13 @@
 # build stage
 FROM node:22-alpine AS build-stage
 
-ARG REPORT
-
 WORKDIR /workspace
 
 COPY scatter/report /workspace/report
-COPY scatter/pipeline/outputs/${REPORT}/hierarchical_result.json /workspace/pipeline/outputs/${REPORT}/hierarchical_result.json
-COPY scatter/pipeline/outputs/${REPORT}/metadata.json /workspace/pipeline/outputs/${REPORT}/metadata.json
-COPY scatter/pipeline/outputs/${REPORT}/reporter.png /workspace/pipeline/outputs/${REPORT}/reporter.png
-COPY scatter/pipeline/outputs/${REPORT}/icon.png /workspace/pipeline/outputs/${REPORT}/icon.png
+COPY scatter/pipeline/outputs/example-hierarchical-polis/hierarchical_result.json /workspace/pipeline/outputs/example-hierarchical-polis/hierarchical_result.json
+COPY scatter/pipeline/outputs/example-hierarchical-polis/metadata.json /workspace/pipeline/outputs/example-hierarchical-polis/metadata.json
+COPY scatter/pipeline/outputs/example-hierarchical-polis/reporter.png /workspace/pipeline/outputs/example-hierarchical-polis/reporter.png
+COPY scatter/pipeline/outputs/example-hierarchical-polis/icon.png /workspace/pipeline/outputs/example-hierarchical-polis/icon.png
 
 RUN cd report && npm install && npm run build
 
@@ -20,9 +18,7 @@ WORKDIR /workspace
 
 RUN npm install -g serve
 
-ARG REPORT
-
-COPY --from=build-stage /workspace/pipeline/outputs/${REPORT}/report /workspace/out
+COPY --from=build-stage /workspace/pipeline/outputs/example-hierarchical-polis/report /workspace/out
 
 ENV PORT="8080"
 
