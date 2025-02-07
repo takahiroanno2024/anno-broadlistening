@@ -5,19 +5,19 @@ import {Argument, Cluster} from '@/type'
 type Props = {
   clusterList: Cluster[]
   argumentList: Argument[]
+  rootLevel: number
 }
 
-export function ScatterChart({clusterList, argumentList}: Props) {
-  // Level 1のクラスタのみを抽出し、色マップを作成
-  const level1Clusters = clusterList.filter((cluster) => cluster.level === 1)
+export function ScatterChart({clusterList, argumentList, rootLevel}: Props) {
+  const targetClusters = clusterList.filter((cluster) => cluster.level === rootLevel + 1)
   const softColors = ['#8fbf6a', '#e89bbd', '#a3c4e5', '#f3d07a', '#5a9bb0']
-  const clusterColorMap = level1Clusters.reduce((acc, cluster, index) => {
+  const clusterColorMap = targetClusters.reduce((acc, cluster, index) => {
     acc[cluster.id] = softColors[index % softColors.length]
     return acc
   }, {} as Record<string, string>)
 
   // クラスタごとのデータを構築
-  const clusterData = level1Clusters.map((cluster) => {
+  const clusterData = targetClusters.map((cluster) => {
     const clusterArguments = argumentList.filter((arg) => arg.cluster_ids.includes(cluster.id))
     const xValues = clusterArguments.map((arg) => arg.x)
     const yValues = clusterArguments.map((arg) => arg.y)

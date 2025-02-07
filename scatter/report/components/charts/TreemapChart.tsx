@@ -5,13 +5,15 @@ import {ChartCore} from './ChartCore'
 
 type Props = {
   clusterList: Cluster[]
+  rootLevel: number
 }
 
-export function TreemapChart({clusterList}: Props) {
-  const ids = clusterList.map(node => node.id)
-  const labels = clusterList.map(node => node.label)
-  const parents = clusterList.map(node => node.parent)
-  const values = clusterList.map(node => node.value)
+export function TreemapChart({clusterList, rootLevel}: Props) {
+  const filteredClusterList = clusterList.filter(cluster => cluster.level >= rootLevel + 1)
+  const ids = filteredClusterList.map(node => node.id)
+  const labels = filteredClusterList.map(node => node.label)
+  const parents = filteredClusterList.map(node => node.parent)
+  const values = filteredClusterList.map(node => node.value)
 
   const data: Partial<PlotData & {maxdepth: number, pathbar: { thickness: number }}> = {
     type: 'treemap',
