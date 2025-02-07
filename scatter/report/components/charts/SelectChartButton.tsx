@@ -52,7 +52,7 @@ export function SelectChartButton({selected, onChange, onClickSetting}: Props) {
           />
         </HStack>
       </RadioCardRoot>
-      <Button onClick={onClickSetting} variant={'outline'} h={'50px'}>
+      <Button onClick={onClickSetting} variant={'outline'} h={'50px'} display={'none'}>
         <Icon><CogIcon /></Icon>
       </Button>
     </HStack>

@@ -5,7 +5,7 @@ import {Analysis} from '@/components/Analysis'
 import React, {PropsWithChildren, useEffect, useState} from 'react'
 import {Skeleton} from '@/components/ui/skeleton'
 import {About} from '@/components/About'
-import {Cluster, Meta, Result} from '@/type'
+import {Meta, Result} from '@/type'
 import {LoadingBar} from '@/components/LoadingBar'
 import {FilterSettingDialog} from '@/components/FilterSettingDialog'
 
@@ -30,10 +30,6 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
   useEffect(() => {
     fetchReport()
   }, [])
-
-  function onChangeFilter() {
-
-  }
 
   async function fetchReport() {
     const response = await fetch('./hierarchical_result.json')
