@@ -26,7 +26,7 @@ type Argument = {
   cluster_ids: string[] // 属するクラスタの ID リスト
 }
 
-type Cluster = {
+export type Cluster = {
   level: number // クラスタの階層レベル
   id: string // クラスタの識別子
   label: string // クラスタの名前

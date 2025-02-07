@@ -32,7 +32,7 @@ export function Analysis({result}: ReportProps) {
     <Box mx={'auto'} maxW={'750px'} mb={12}>
       <Separator my={12} />
       <Heading textAlign={'center'} fontSize={'xl'} mb={5}>Analysis</Heading>
-      <Text fontSize={'sm'} mb={5}>{result.config.intro}</Text>
+      <Text mb={5}>{result.config.intro}</Text>
       <Box>
         <Heading fontSize={'md'} mb={5}>分析手順</Heading>
         <TimelineRoot size={'lg'}>
@@ -165,7 +165,7 @@ export function Analysis({result}: ReportProps) {
                   <TimelineTitle fontWeight={'bold'}>表示</TimelineTitle>
                   <TimelineDescription>
                     出力されたJSONファイルをグラフィカルに表示するステップです。<br />
-                    クラスタの概要、議論の内容などを可視化します。あなたが見ているこの画面です。
+                    クラスタの概要、議論の内容などを可視化します。あなたが見ているこの画面が出来上がります。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({

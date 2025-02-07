@@ -39,13 +39,16 @@ REPORT=output_name npm start
 - レポート作成者の情報を埋め込むには `../pipeline/outputs/{{output_name}}` に以下のファイルを配置してください
 
 ```
-- reporter.png
-  - レポート作成者のロゴ画像
-
 - metadata.json
   - reporterName: レポート作成者名
   - projectMessage: プロジェクトについての説明
   - projectLink: プロジェクトページのリンク(省略可)
   - privacyLink: プライバシーポリシーのリンク(省略可)
   - termsLink: 利用規約のリンク(省略可)
+
+- reporter.png
+  - レポート作成者のロゴ画像
+  
+- icon.png
+  - ページのお気に入りアイコン(省略可)
 ```
