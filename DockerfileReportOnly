@@ -9,7 +9,9 @@ COPY scatter/pipeline/outputs/example-hierarchical-polis/metadata.json /workspac
 COPY scatter/pipeline/outputs/example-hierarchical-polis/reporter.png /workspace/pipeline/outputs/example-hierarchical-polis/reporter.png
 COPY scatter/pipeline/outputs/example-hierarchical-polis/icon.png /workspace/pipeline/outputs/example-hierarchical-polis/icon.png
 
-RUN cd report && npm install && npm run build
+RUN cd report && npm install
+
+RUN cd report && REPORT=example-hierarchical-polis npm run build
 
 # runtime stage
 FROM node:22-alpine AS runtime-stage
