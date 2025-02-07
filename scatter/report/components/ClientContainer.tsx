@@ -5,8 +5,9 @@ import {Analysis} from '@/components/Analysis'
 import React, {PropsWithChildren, useEffect, useState} from 'react'
 import {Skeleton} from '@/components/ui/skeleton'
 import {About} from '@/components/About'
-import {Meta, Result} from '@/type'
+import {Cluster, Meta, Result} from '@/type'
 import {LoadingBar} from '@/components/LoadingBar'
+import {FilterSettingDialog} from '@/components/FilterSettingDialog'
 
 type Props = {
   resultSize: number
@@ -21,12 +22,18 @@ type Props = {
 // 最終的にページが完成する速度は大差ないが、先に出せるものを出すことで、体感として高速に感じるようにしている
 
 export function ClientContainer({resultSize, meta, children}: PropsWithChildren<Props>) {
-  const [result, setResult] = useState<Result>()
   const [loadedSize, setLoadedSize] = useState(0)
+  const [result, setResult] = useState<Result>()
+  const [filteredResult, setFilteredResult] = useState<Result>()
+  const [openFilterSetting, setOpenFilterSetting] = useState(false)
 
   useEffect(() => {
     fetchReport()
   }, [])
+
+  function onChangeFilter() {
+
+  }
 
   async function fetchReport() {
     const response = await fetch('./hierarchical_result.json')
@@ -48,11 +55,13 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
         position += chunk.length
       }
       const result = new TextDecoder('utf-8').decode(concatenatedChunks)
-      setResult(JSON.parse(result))
+      const r = JSON.parse(result)
+      setResult(r)
+      setFilteredResult(r)
     }
   }
 
-  if (!result) {
+  if (!result || !filteredResult) {
     return (
       <>
         <LoadingBar loaded={loadedSize} max={resultSize} />
@@ -64,10 +73,31 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
   }
   return (
     <>
-      <Chart result={result} />
+      <FilterSettingDialog
+        result={result}
+        isOpen={openFilterSetting}
+        onClose={() => {setOpenFilterSetting(false)}}
+        onChangeFilter={() => {alert('hello')}}
+      />
+      <Chart
+        result={filteredResult}
+        onClickSettingAction={() => {setOpenFilterSetting(true)}}
+      />
       { children }
       <Analysis result={result} />
       {result && meta && (<About meta={meta} />)}
     </>
   )
 }
+
+// function getFilteredClusters(clusters: Cluster[], level1Id: string, targetLevel: number): Cluster[] {
+//   if (targetLevel === 1) {
+//     return clusters.filter(cluster => cluster.level === 1)
+//   }
+//   let currentLevelClusters = clusters.filter(cluster => cluster.level === 1 && cluster.id === level1Id)
+//   for (let level = 2; level <= targetLevel; level++) {
+//     const parentIds = currentLevelClusters.map(cluster => cluster.id)
+//     currentLevelClusters = clusters.filter(cluster => cluster.level === level && parentIds.includes(cluster.parent))
+//   }
+//   return currentLevelClusters
+// }

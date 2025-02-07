@@ -10,9 +10,10 @@ import {SelectChartButton} from '@/components/charts/SelectChartButton'
 
 type ReportProps = {
   result: Result
+  onClickSettingAction: () => void
 }
 
-export function Chart({result}: ReportProps) {
+export function Chart({result, onClickSettingAction}: ReportProps) {
   const [selectedChart, setSelectedChart] = useState('scatter')
   return (
     <Box mx={'auto'} w={'100%'} maxW={'1200px'} mb={10}>
@@ -28,7 +29,11 @@ export function Chart({result}: ReportProps) {
         )}
       </Box>
       <Box display={'flex'} justifyContent={'center'}>
-        <SelectChartButton selected={selectedChart} onChange={setSelectedChart} />
+        <SelectChartButton
+          selected={selectedChart}
+          onChange={setSelectedChart}
+          onClickSetting={onClickSettingAction}
+        />
       </Box>
     </Box>
   )

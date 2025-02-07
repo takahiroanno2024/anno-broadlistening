@@ -25,7 +25,7 @@ let nextConfig: NextConfig = {
   env: { REPORT: report },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png']
+      const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png', 'icon.png']
       filesToCopy.forEach(file => {
         const sourcePath = path.resolve(`../pipeline/outputs/${process.env.REPORT}/${file}`)
         const destinationPath = path.resolve(`./public/${file}`)

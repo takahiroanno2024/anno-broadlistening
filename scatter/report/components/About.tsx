@@ -22,7 +22,7 @@ export function About({meta}: AboutProps) {
         maxW={'200px'}
         alt={meta.reporterName}
       />
-      <Text fontSize={'sm'} mb={5} whiteSpace={'pre-line'}>
+      <Text mb={5} whiteSpace={'pre-line'}>
         {meta.projectMessage}
       </Text>
       <VStack>
