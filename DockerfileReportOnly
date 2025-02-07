@@ -2,7 +2,6 @@
 FROM node:22-alpine AS build-stage
 
 ARG REPORT
-ENV REPORT="${REPORT}"
 
 WORKDIR /workspace
 
@@ -22,7 +21,6 @@ WORKDIR /workspace
 RUN npm install -g serve
 
 ARG REPORT
-ENV REPORT="${REPORT}"
 
 COPY --from=build-stage /workspace/pipeline/outputs/${REPORT}/report /workspace/out
 
