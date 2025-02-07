@@ -11,6 +11,8 @@ COPY scatter/pipeline/outputs/example-hierarchical-polis/icon.png /workspace/pip
 
 RUN cd report && npm install
 
+RUN cd report && mkdir -p public
+
 RUN cd report && REPORT=example-hierarchical-polis npm run build
 
 # runtime stage
