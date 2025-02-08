@@ -37,7 +37,7 @@ jobs:
         
     - name: Run build
       working-directory: scatter/report
-      run: npm run build
+      run: REPORT=example-hierarchical-polis npm run build
 
     - name: Run tests
       working-directory: scatter/report
