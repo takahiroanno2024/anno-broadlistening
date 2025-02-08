@@ -107,7 +107,6 @@ function getRootLevel(level1Id:string, level2Id:string, level3Id:string, level4I
 }
 
 function getFilteredClusters(clusters: Cluster[], level1Id:string, level2Id:string, level3Id:string, level4Id:string): Cluster[] {
-  console.log(level1Id, level2Id, level3Id, level4Id)
   if (level4Id !== '0') {
     const lv1cluster = clusters.find(c => c.id === level1Id)!
     const lv2cluster = clusters.find(c => c.id === level2Id)!

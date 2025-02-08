@@ -9,7 +9,9 @@ type Props = {
 }
 
 export function TreemapChart({clusterList, rootLevel}: Props) {
-  const filteredClusterList = clusterList.filter(cluster => cluster.level >= rootLevel + 1)
+  const filteredClusterList = clusterList
+    .filter(cluster => cluster.level >= rootLevel)
+    .map((cluster, index) => index === 0 ? { ...cluster, parent: '' } : cluster)
   const ids = filteredClusterList.map(node => node.id)
   const labels = filteredClusterList.map(node => node.label)
   const parents = filteredClusterList.map(node => node.parent)
