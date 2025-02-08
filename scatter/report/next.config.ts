@@ -25,6 +25,11 @@ let nextConfig: NextConfig = {
   env: { REPORT: report },
   webpack: (config, { isServer }) => {
     if (isServer) {
+      const publicDir = path.resolve('./public')
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir)
+        console.log(` ✓ Created directory: ${publicDir}`)
+      }
       const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png', 'icon.png']
       filesToCopy.forEach(file => {
         const sourcePath = path.resolve(`../pipeline/outputs/${process.env.REPORT}/${file}`)

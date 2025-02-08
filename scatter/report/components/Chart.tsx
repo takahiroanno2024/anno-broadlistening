@@ -10,22 +10,23 @@ import {SelectChartButton} from '@/components/charts/SelectChartButton'
 
 type ReportProps = {
   result: Result
+  rootLevel: number
   onClickSettingAction: () => void
 }
 
-export function Chart({result, onClickSettingAction}: ReportProps) {
+export function Chart({result, rootLevel, onClickSettingAction}: ReportProps) {
   const [selectedChart, setSelectedChart] = useState('scatter')
   return (
     <Box mx={'auto'} w={'100%'} maxW={'1200px'} mb={10}>
       <Box h={'500px'} mb={5}>
         {selectedChart === 'scatter' && (
-          <ScatterChart clusterList={result.clusters} argumentList={result.arguments} />
+          <ScatterChart clusterList={result.clusters} argumentList={result.arguments} rootLevel={rootLevel} />
         )}
         {selectedChart === 'sunburst' && (
-          <SunburstChart clusterList={result.clusters} />
+          <SunburstChart clusterList={result.clusters} rootLevel={rootLevel}  />
         )}
         {selectedChart === 'treemap' && (
-          <TreemapChart clusterList={result.clusters} />
+          <TreemapChart clusterList={result.clusters} rootLevel={rootLevel}  />
         )}
       </Box>
       <Box display={'flex'} justifyContent={'center'}>
