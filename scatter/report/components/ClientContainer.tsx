@@ -8,6 +8,7 @@ import {About} from '@/components/About'
 import {Cluster, Meta, Result} from '@/type'
 import {LoadingBar} from '@/components/LoadingBar'
 import {FilterSettingDialog} from '@/components/FilterSettingDialog'
+import {ClusterOverview} from '@/components/ClusterOverview'
 
 type Props = {
   resultSize: number
@@ -91,7 +92,12 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
         rootLevel={rootLevel}
         onClickSettingAction={() => {setOpenFilterSetting(true)}}
       />
-      { children }
+      { rootLevel === 0 && children }
+      { rootLevel !== 0 && (
+        filteredResult.clusters.filter(c => c.level === rootLevel + 1).map(c => (
+          <ClusterOverview key={c.id} cluster={c} />
+        ))
+      )}
       <Analysis result={result} />
       {result && meta && (<About meta={meta} />)}
     </>

@@ -1,4 +1,4 @@
-import {Box, Button} from '@chakra-ui/react'
+import {Box, Button, VStack} from '@chakra-ui/react'
 import React, {useEffect, useState} from 'react'
 import {NativeSelectField, NativeSelectRoot} from '@/components/ui/native-select'
 import {Result} from '@/type'
@@ -11,6 +11,7 @@ import {
   DialogRoot,
   DialogTitle
 } from '@/components/ui/dialog'
+import {ChevronDownIcon} from 'lucide-react'
 
 type Props = {
   result: Result
@@ -25,20 +26,28 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
   const [level3, setLevel3] = useState<string>('0')
   const [level4, setLevel4] = useState<string>('0')
 
-  useEffect(() => {
-    if (level1 === '0') {
-      setLevel2('0')
-      setLevel3('0')
-      setLevel4('0')
+  function onChangeLevel(level: number, id: string) {
+    switch (level) {
+      case 1:
+        setLevel1(id)
+        setLevel2('0')
+        setLevel3('0')
+        setLevel4('0')
+        break
+      case 2:
+        setLevel2(id)
+        setLevel3('0')
+        setLevel4('0')
+        break
+      case 3:
+        setLevel3(id)
+        setLevel4('0')
+        break
+      case 4:
+        setLevel4(id)
+        break
     }
-    if (level2 === '0') {
-      setLevel3('0')
-      setLevel4('0')
-    }
-    if (level3 === '0') {
-      setLevel4('0')
-    }
-  }, [level1, level2, level3, level4])
+  }
 
   function onApply() {
     onChangeFilter(level1, level2, level3, level4)
@@ -52,11 +61,11 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
           <DialogTitle>表示クラスター設定</DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <Box mb={2}>
+          <Box>
             <NativeSelectRoot>
               <NativeSelectField
                 value={level1}
-                onChange={(e) => setLevel1(e.target.value)}
+                onChange={(e) => onChangeLevel(1, e.target.value)}
               >
                 <option value={'0'}>全て</option>
                 {result.clusters.filter(c => c.level === 1).map(c => (
@@ -66,11 +75,12 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
             </NativeSelectRoot>
           </Box>
           {level1 !== '0' && (
-            <Box mb={2}>
+            <VStack mt={2}>
+              <ChevronDownIcon />
               <NativeSelectRoot>
                 <NativeSelectField
                   value={level2}
-                  onChange={(e) => setLevel2(e.target.value)}
+                  onChange={(e) => onChangeLevel(2, e.target.value)}
                 >
                   <option value={'0'}>全て</option>
                   {result.clusters.filter(c => c.parent === level1).map(c => (
@@ -78,14 +88,15 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
                   ))}
                 </NativeSelectField>
               </NativeSelectRoot>
-            </Box>
+            </VStack>
           )}
           {level2 !== '0' && (
-            <Box mb={2}>
+            <VStack mt={2}>
+              <ChevronDownIcon />
               <NativeSelectRoot>
                 <NativeSelectField
                   value={level3}
-                  onChange={(e) => setLevel3(e.target.value)}
+                  onChange={(e) => onChangeLevel(3, e.target.value)}
                 >
                   <option value={'0'}>全て</option>
                   {result.clusters.filter(c => c.parent === level2).map(c => (
@@ -93,14 +104,15 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
                   ))}
                 </NativeSelectField>
               </NativeSelectRoot>
-            </Box>
+            </VStack>
           )}
           {level3 !== '0' && (
-            <Box mb={2}>
+            <VStack mt={2}>
+              <ChevronDownIcon />
               <NativeSelectRoot>
                 <NativeSelectField
                   value={level4}
-                  onChange={(e) => setLevel4(e.target.value)}
+                  onChange={(e) => onChangeLevel(4, e.target.value)}
                 >
                   <option value={'0'}>全て</option>
                   {result.clusters.filter(c => c.parent === level3).map(c => (
@@ -108,7 +120,7 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
                   ))}
                 </NativeSelectField>
               </NativeSelectRoot>
-            </Box>
+            </VStack>
           )}
         </DialogBody>
         <DialogFooter>
