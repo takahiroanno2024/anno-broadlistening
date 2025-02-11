@@ -10,6 +10,7 @@ import {LoadingBar} from '@/components/LoadingBar'
 import {FilterSettingDialog} from '@/components/FilterSettingDialog'
 import {ClusterOverview} from '@/components/ClusterOverview'
 import {SelectChartButton} from '@/components/charts/SelectChartButton'
+import {ClusterBreadcrumb} from '@/components/ClusterBreadcrumb'
 
 type Props = {
   resultSize: number
@@ -28,6 +29,7 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
   const [result, setResult] = useState<Result>()
   const [rootLevel, setRootLevel] = useState(0)
   const [filteredResult, setFilteredResult] = useState<Result>()
+  const [selectedClusters, setSelectedClusters] = useState<Cluster[]>([])
   const [openFilterSetting, setOpenFilterSetting] = useState(false)
   const [selectedChart, setSelectedChart] = useState('scatter')
 
@@ -37,11 +39,11 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
 
   function onChangeFilter(lv1: string, lv2: string, lv3: string, lv4: string) {
     if (!result) return
-    const filteredClusters = getFilteredClusters(result.clusters || [], lv1, lv2, lv3, lv4)
     setRootLevel(getRootLevel(lv1, lv2, lv3, lv4))
+    setSelectedClusters(getSelectedClusters(result.clusters || [], lv1, lv2, lv3, lv4))
     setFilteredResult({
       ...result,
-      clusters: filteredClusters
+      clusters: getFilteredClusters(result.clusters || [], lv1, lv2, lv3, lv4)
     })
   }
 
@@ -83,12 +85,14 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
   }
   return (
     <>
-      <FilterSettingDialog
-        result={result}
-        isOpen={openFilterSetting}
-        onClose={() => {setOpenFilterSetting(false)}}
-        onChangeFilter={onChangeFilter}
-      />
+      {openFilterSetting && (
+        <FilterSettingDialog
+          result={result}
+          selectedClusters={selectedClusters}
+          onClose={() => {setOpenFilterSetting(false)}}
+          onChangeFilter={onChangeFilter}
+        />
+      )}
       <Chart
         result={filteredResult}
         rootLevel={rootLevel}
@@ -99,6 +103,10 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
         onChange={setSelectedChart}
         onClickSetting={() => {setOpenFilterSetting(true)}}
         isApplyFilter={result.clusters.length !== filteredResult.clusters.length}
+      />
+      <ClusterBreadcrumb
+        selectedClusters={selectedClusters}
+        onChangeFilter={onChangeFilter}
       />
       { rootLevel === 0 && children }
       { rootLevel !== 0 && (
@@ -118,6 +126,15 @@ function getRootLevel(level1Id:string, level2Id:string, level3Id:string, level4I
   if (level2Id !== '0') return 2
   if (level1Id !== '0') return 1
   return 0
+}
+
+function getSelectedClusters(clusters: Cluster[], level1Id:string, level2Id:string, level3Id:string, level4Id:string): Cluster[] {
+  const results: Cluster[] = []
+  if (level1Id !== '0') results.push(clusters.find(c => c.id === level1Id)!)
+  if (level2Id !== '0') results.push(clusters.find(c => c.id === level2Id)!)
+  if (level3Id !== '0') results.push(clusters.find(c => c.id === level3Id)!)
+  if (level4Id !== '0') results.push(clusters.find(c => c.id === level4Id)!)
+  return results
 }
 
 function getFilteredClusters(clusters: Cluster[], level1Id:string, level2Id:string, level3Id:string, level4Id:string): Cluster[] {

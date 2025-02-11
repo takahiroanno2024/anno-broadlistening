@@ -1,7 +1,7 @@
 import {Box, Button, Text, VStack} from '@chakra-ui/react'
 import React, {useState} from 'react'
 import {NativeSelectField, NativeSelectRoot} from '@/components/ui/native-select'
-import {Result} from '@/type'
+import {Cluster, Result} from '@/type'
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -15,16 +15,16 @@ import {ChevronDownIcon} from 'lucide-react'
 
 type Props = {
   result: Result
-  isOpen: boolean
+  selectedClusters: Cluster[]
   onClose: () => void
   onChangeFilter: (level1: string, level2: string, level3: string, level4: string) => void
 }
 
-export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: Props) {
-  const [level1, setLevel1] = useState<string>('0')
-  const [level2, setLevel2] = useState<string>('0')
-  const [level3, setLevel3] = useState<string>('0')
-  const [level4, setLevel4] = useState<string>('0')
+export function FilterSettingDialog({result, selectedClusters, onClose, onChangeFilter}: Props) {
+  const [level1, setLevel1] = useState<string>(selectedClusters[0]?.id || '0')
+  const [level2, setLevel2] = useState<string>(selectedClusters[1]?.id || '0')
+  const [level3, setLevel3] = useState<string>(selectedClusters[2]?.id || '0')
+  const [level4, setLevel4] = useState<string>(selectedClusters[3]?.id || '0')
 
   function onChangeLevel(level: number, id: string) {
     switch (level) {
@@ -53,9 +53,17 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
     onChangeFilter(level1, level2, level3, level4)
     onClose()
   }
+  function onReset() {
+    setLevel1('0')
+    setLevel2('0')
+    setLevel3('0')
+    setLevel4('0')
+    onChangeFilter('0', '0', '0', '0')
+    onClose()
+  }
 
   return (
-    <DialogRoot lazyMount open={isOpen} onOpenChange={onClose}>
+    <DialogRoot lazyMount open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>表示クラスター設定</DialogTitle>
@@ -125,6 +133,7 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
           )}
         </DialogBody>
         <DialogFooter>
+          <Button variant={'outline'} onClick={onReset}>リセット</Button>
           <Button onClick={onApply}>設定を適用</Button>
         </DialogFooter>
         <DialogCloseTrigger />
