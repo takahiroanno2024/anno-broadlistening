@@ -6,14 +6,16 @@ import {
   SquareSquareIcon
 } from 'lucide-react'
 import React from 'react'
+import {Tooltip} from '@/components/ui/tooltip'
 
 type Props = {
   selected: string
   onChange: (value: string) => void
   onClickSetting: () => void
+  isApplyFilter: boolean
 }
 
-export function SelectChartButton({selected, onChange, onClickSetting}: Props) {
+export function SelectChartButton({selected, onChange, onClickSetting, isApplyFilter}: Props) {
   return (
     <HStack w={'100%'} justify={'center'} align={'center'}>
       <RadioCardRoot
@@ -52,9 +54,15 @@ export function SelectChartButton({selected, onChange, onClickSetting}: Props) {
           />
         </HStack>
       </RadioCardRoot>
-      <Button onClick={onClickSetting} variant={'outline'} h={'50px'}>
-        <Icon><CogIcon /></Icon>
-      </Button>
+      <Tooltip content={isApplyFilter ? '表示クラスター設定が有効です' : '表示クラスター設定'} openDelay={0} closeDelay={0}>
+        <Button
+          onClick={onClickSetting}
+          variant={isApplyFilter ? 'solid' : 'outline'}
+          h={'50px'}
+        >
+          <Icon><CogIcon /></Icon>
+        </Button>
+      </Tooltip>
     </HStack>
   )
 }

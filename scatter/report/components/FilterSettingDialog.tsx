@@ -1,4 +1,4 @@
-import {Box, Button, VStack} from '@chakra-ui/react'
+import {Box, Button, Text, VStack} from '@chakra-ui/react'
 import React, {useState} from 'react'
 import {NativeSelectField, NativeSelectRoot} from '@/components/ui/native-select'
 import {Result} from '@/type'
@@ -59,6 +59,7 @@ export function FilterSettingDialog({result, isOpen, onClose, onChangeFilter}: P
       <DialogContent>
         <DialogHeader>
           <DialogTitle>表示クラスター設定</DialogTitle>
+          <Text>表示クラスターを設定すると、分析範囲を絞って詳細を確認できます</Text>
         </DialogHeader>
         <DialogBody>
           <Box>
