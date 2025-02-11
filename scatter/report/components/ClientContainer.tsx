@@ -9,6 +9,7 @@ import {Cluster, Meta, Result} from '@/type'
 import {LoadingBar} from '@/components/LoadingBar'
 import {FilterSettingDialog} from '@/components/FilterSettingDialog'
 import {ClusterOverview} from '@/components/ClusterOverview'
+import {SelectChartButton} from '@/components/charts/SelectChartButton'
 
 type Props = {
   resultSize: number
@@ -28,6 +29,7 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
   const [rootLevel, setRootLevel] = useState(0)
   const [filteredResult, setFilteredResult] = useState<Result>()
   const [openFilterSetting, setOpenFilterSetting] = useState(false)
+  const [selectedChart, setSelectedChart] = useState('scatter')
 
   useEffect(() => {
     fetchReport()
@@ -90,7 +92,13 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
       <Chart
         result={filteredResult}
         rootLevel={rootLevel}
-        onClickSettingAction={() => {setOpenFilterSetting(true)}}
+        selectedChart={selectedChart}
+      />
+      <SelectChartButton
+        selected={selectedChart}
+        onChange={setSelectedChart}
+        onClickSetting={() => {setOpenFilterSetting(true)}}
+        isApplyFilter={result.clusters.length !== filteredResult.clusters.length}
       />
       { rootLevel === 0 && children }
       { rootLevel !== 0 && (
