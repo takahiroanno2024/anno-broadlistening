@@ -17,7 +17,7 @@ type Props = {
 
 export function SelectChartButton({selected, onChange, onClickSetting, isApplyFilter}: Props) {
   return (
-    <HStack w={'100%'} justify={'center'} align={'center'}>
+    <HStack w={'100%'} justify={'center'} align={'center'} mb={10}>
       <RadioCardRoot
         orientation="horizontal"
         align="center"
