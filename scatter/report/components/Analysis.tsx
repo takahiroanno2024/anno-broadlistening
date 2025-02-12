@@ -1,7 +1,7 @@
 'use client'
 
 import {Result} from '@/type'
-import {Box, Button, Heading, HStack, Separator, Text} from '@chakra-ui/react'
+import {Box, Button, Heading, HStack, Icon, Separator, Text, VStack} from '@chakra-ui/react'
 import {
   TimelineConnector,
   TimelineContent,
@@ -10,7 +10,12 @@ import {
   TimelineRoot,
   TimelineTitle
 } from '@/components/ui/timeline'
-import {CircleArrowDownIcon} from 'lucide-react'
+import {
+  ChevronRightIcon,
+  CircleArrowDownIcon, ClipboardCheckIcon,
+  MessageCircleIcon,
+  MessagesSquareIcon,
+} from 'lucide-react'
 import {
   DrawerBackdrop, DrawerBody,
   DrawerContent, DrawerFooter,
@@ -30,8 +35,27 @@ export function Analysis({result}: ReportProps) {
 
   return (
     <Box mx={'auto'} maxW={'750px'} mb={12}>
-      <Separator my={12} />
+      <Separator mt={20} mb={12} />
       <Heading textAlign={'center'} fontSize={'xl'} mb={5}>Analysis</Heading>
+      <HStack mb={5} justify={'center'}>
+        <VStack gap={0} w={'200px'}>
+          <Icon mb={2}><MessageCircleIcon size={'30px'} /></Icon>
+          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{Object.keys(result.comments).length.toLocaleString()}</Text>
+          <Text fontSize={'xs'}>意見が含まれるコメント数</Text>
+        </VStack>
+        <ChevronRightIcon />
+        <VStack gap={0} w={'200px'}>
+          <Icon mb={2}><MessagesSquareIcon size={'30px'} /></Icon>
+          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.arguments.length.toLocaleString()}</Text>
+          <Text fontSize={'xs'}>AIが抽出した意見数</Text>
+        </VStack>
+        <ChevronRightIcon />
+        <VStack gap={0} w={'200px'}>
+          <Icon mb={2}><ClipboardCheckIcon size={'30px'} /></Icon>
+          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.clusters.length.toLocaleString()}</Text>
+          <Text fontSize={'xs'}>AIが集約したクラスター数</Text>
+        </VStack>
+      </HStack>
       <Text mb={5}>{result.config.intro}</Text>
       <Box>
         <Heading fontSize={'md'} mb={5}>分析手順</Heading>

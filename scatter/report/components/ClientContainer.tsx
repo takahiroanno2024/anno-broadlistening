@@ -77,7 +77,7 @@ export function ClientContainer({resultSize, meta, children}: PropsWithChildren<
     return (
       <>
         <LoadingBar loaded={loadedSize} max={resultSize} />
-        <Skeleton height="516px" mb={5} mx={'auto'} w={'100%'} maxW={'1200px'} />
+        <Skeleton height="534px" mb={5} mx={'auto'} w={'100%'} maxW={'1200px'} />
         { children }
         <LoadingBar loaded={loadedSize} max={resultSize} />
       </>
