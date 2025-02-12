@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/timeline'
 import {
   ChevronRightIcon,
-  CircleArrowDownIcon, ClipboardCheckIcon,
-  MessageCircleIcon,
+  CircleArrowDownIcon,
+  ClipboardCheckIcon,
+  MessageCircleWarningIcon,
   MessagesSquareIcon,
 } from 'lucide-react'
 import {
@@ -39,7 +40,7 @@ export function Analysis({result}: ReportProps) {
       <Heading textAlign={'center'} fontSize={'xl'} mb={5}>Analysis</Heading>
       <HStack mb={5} justify={'center'}>
         <VStack gap={0} w={'200px'}>
-          <Icon mb={2}><MessageCircleIcon size={'30px'} /></Icon>
+          <Icon mb={2}><MessageCircleWarningIcon size={'30px'} /></Icon>
           <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{Object.keys(result.comments).length.toLocaleString()}</Text>
           <Text fontSize={'xs'}>意見が含まれるコメント数</Text>
         </VStack>
@@ -47,7 +48,7 @@ export function Analysis({result}: ReportProps) {
         <VStack gap={0} w={'200px'}>
           <Icon mb={2}><MessagesSquareIcon size={'30px'} /></Icon>
           <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.arguments.length.toLocaleString()}</Text>
-          <Text fontSize={'xs'}>AIが抽出した意見数</Text>
+          <Text fontSize={'xs'}>AIが抽出した議論数</Text>
         </VStack>
         <ChevronRightIcon />
         <VStack gap={0} w={'200px'}>

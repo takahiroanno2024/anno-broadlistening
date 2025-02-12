@@ -11,7 +11,7 @@ export function ClusterOverview({cluster}: Props) {
     <Box mx={'auto'} maxW={'750px'} mb={12}>
       <Box mb={2}>
         <Heading fontSize={'2xl'} className={'headingColor'} mb={1}>{cluster.label}</Heading>
-        <Text fontWeight={'bold'}><Icon mr={1}><MessagesSquareIcon size={20} /></Icon>{cluster.value}意見</Text>
+        <Text fontWeight={'bold'}><Icon mr={1}><MessagesSquareIcon size={20} /></Icon>{cluster.value.toLocaleString()}議論</Text>
       </Box>
       <Text>{cluster.takeaway}</Text>
     </Box>
