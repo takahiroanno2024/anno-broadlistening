@@ -25,6 +25,7 @@ import {
   DrawerTitle
 } from '@/components/ui/drawer'
 import {useState} from 'react'
+import {Tooltip} from '@/components/ui/tooltip'
 
 type ReportProps = {
   result: Result
@@ -39,23 +40,29 @@ export function Analysis({result}: ReportProps) {
       <Separator mt={20} mb={12} />
       <Heading textAlign={'center'} fontSize={'xl'} mb={5}>Analysis</Heading>
       <HStack mb={5} justify={'center'}>
-        <VStack gap={0} w={'200px'}>
-          <Icon mb={2}><MessageCircleWarningIcon size={'30px'} /></Icon>
-          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{Object.keys(result.comments).length.toLocaleString()}</Text>
-          <Text fontSize={'xs'}>意見が含まれるコメント数</Text>
-        </VStack>
+        <Tooltip content={'全てのコメントをAIで分析し、意見が含まれるコメントを抽出します。意見が含まれないコメントや、議題と関係のないコメントは除外されます。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><MessageCircleWarningIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{Object.keys(result.comments).length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>意見が含まれるコメント数</Text>
+          </VStack>
+        </Tooltip>
         <ChevronRightIcon />
-        <VStack gap={0} w={'200px'}>
-          <Icon mb={2}><MessagesSquareIcon size={'30px'} /></Icon>
-          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.arguments.length.toLocaleString()}</Text>
-          <Text fontSize={'xs'}>AIが抽出した議論数</Text>
-        </VStack>
+        <Tooltip content={'抽出したコメントをAIで分析し、様々な議論を抽出します。複数の意見が混ざったコメントなども個別に処理しています。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><MessagesSquareIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.arguments.length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>AIが抽出した議論数</Text>
+          </VStack>
+        </Tooltip>
         <ChevronRightIcon />
-        <VStack gap={0} w={'200px'}>
-          <Icon mb={2}><ClipboardCheckIcon size={'30px'} /></Icon>
-          <Text fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.clusters.length.toLocaleString()}</Text>
-          <Text fontSize={'xs'}>AIが集約したクラスター数</Text>
-        </VStack>
+        <Tooltip content={'抽出した議論をAIで分析し、近しい議論を一つのクラスターに分類します。クラスターごとの議論を要約し、大量の意見を見える化します。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><ClipboardCheckIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.clusters.length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>AIが集約したクラスター数</Text>
+          </VStack>
+        </Tooltip>
       </HStack>
       <Text mb={5}>{result.config.intro}</Text>
       <Box>
