@@ -16,7 +16,7 @@ export function LoadingBar({loaded, max, isVisualizing}: Props) {
         mx={'auto'}
         p={5}
         maxW={'800px'}
-        colorPalette={'teal'}
+        colorPalette={'cyan'}
       >
         <HStack gap="5">
           <Progress.Track flex="1">
@@ -35,7 +35,7 @@ export function LoadingBar({loaded, max, isVisualizing}: Props) {
       mx={'auto'}
       p={5}
       maxW={'800px'}
-      colorPalette={'teal'}
+      colorPalette={'cyan'}
     >
       <HStack gap="5">
         <Progress.Track flex="1">

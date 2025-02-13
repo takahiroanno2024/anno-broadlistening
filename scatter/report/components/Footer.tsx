@@ -9,7 +9,7 @@ export function Footer({meta}: Props) {
   return (
     <footer>
       {meta && (<Text fontWeight={'bold'}>{meta.reporterName}</Text>)}
-      <Text>デジタル民主主義2030 ブロードリスニング</Text>
+      <Text>デジタル民主主義2030プロジェクト</Text>
     </footer>
   )
 }
