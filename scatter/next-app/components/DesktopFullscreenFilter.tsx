@@ -1,7 +1,8 @@
-import {XIcon} from 'lucide-react'
+import { XIcon } from 'lucide-react'
 import React from 'react'
-import {Translator} from '@/hooks/useTranslatorAndReplacements'
-import {Argument, PropertyMap} from '@/types'
+import { PaletteType } from '@/hooks/useColorPalettes'
+import { Translator } from '@/hooks/useTranslatorAndReplacements'
+import { Argument, PropertyMap } from '@/types'
 
 type Props = {
   translator: Translator
@@ -21,10 +22,12 @@ type Props = {
     filtered: number
     filter: (arg: Argument) => boolean
   }
+  paletteType: PaletteType
+  setPaletteType: (type: PaletteType) => void
 }
 
 export function DesktopFullscreenFilter(props: Props) {
-  const {t} = props.translator
+  const { t } = props.translator
   return (
     <div
       className="absolute top-0 left-0 w-[400px] p-4 bg-gray-100 overflow-y-auto z-10 h-full shadow-md"
@@ -35,7 +38,7 @@ export function DesktopFullscreenFilter(props: Props) {
           {t('toolsFilterSettings')}
         </h2>
         <button onClick={props.onClose}>
-          <XIcon/>
+          <XIcon />
         </button>
       </div>
       {/* Search */}
@@ -77,6 +80,20 @@ export function DesktopFullscreenFilter(props: Props) {
           )
         })}
       </dl>
+
+      カラーパレット
+      <select
+        className="w-[120px] m-1 px-2 py-1 rounded-lg bg-white text-gray-700 text-sm border border-gray-300 hover:border-gray-400"
+        value={props.paletteType}
+        onChange={(e) => props.setPaletteType(e.target.value as PaletteType)}
+      >
+        <option value="default">デフォルト</option>
+        <option value="colorUniversal">カラーユニバーサル</option>
+        <option value="proto">第一色覚</option>
+        <option value="deutero">第二色覚</option>
+        <option value="trito">第三色覚</option>
+      </select>
+
 
       {/* Votes */}
       {props.dataHasVotes && (
