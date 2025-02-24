@@ -1,16 +1,17 @@
 import json
 import os
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 with open("./hierarchical_specs.json") as f:
     specs = json.load(f)
 
 
 def validate_config(config):
-    if not "input" in config:
+    if "input" not in config:
         raise Exception("Missing required field 'input' in config")
-    if not "question" in config:
+    if "question" not in config:
         raise Exception("Missing required field 'question' in config")
     valid_fields = ["input", "question", "model", "name", "intro"]
     step_names = [x["step"] for x in specs]
@@ -63,7 +64,11 @@ def decide_what_to_run(config, previous):
         run = True
         reason = None
         found_prev = len([x for x in previous_jobs if x["step"] == step["step"]]) > 0
-        if config.get("force", False):
+
+        if stepname == "hierarchical_visualization" and config.get("without-html", False):
+            reason = "skipping html output"
+            run = False
+        elif config.get("force", False):
             reason = "forced with -f"
         elif config.get("only", None) != None and config["only"] != stepname:
             run = False
@@ -112,6 +117,8 @@ def initialization(sysargv):
             config["only"] = sysargv[i + 1]
         if option == "-skip-interaction":
             config["skip-interaction"] = True
+        if option == "--without-html":
+            config["without-html"] = True
 
     output_dir = config["output_dir"]
 
@@ -131,18 +138,18 @@ def initialization(sysargv):
             print("Hum, the last Job crashed a while ago...Proceeding!")
 
     # set default LLM model
-    if not "model" in config:
+    if "model" not in config:
         config["model"] = "gpt-4o-mini"
 
     # prepare configs for each jobs
     for step_spec in specs:
         step = step_spec["step"]
-        if not step in config:
+        if step not in config:
             config[step] = {}
         # set default option values
         if "options" in step_spec:
             for key, value in step_spec["options"].items():
-                if not key in config[step]:
+                if key not in config[step]:
                     config[step][key] = value
         # try and include source code
         try:
@@ -153,12 +160,12 @@ def initialization(sysargv):
         # resolve common options for llm-based jobs
         if step_spec.get("use_llm", False):
             # resolve prompt
-            if not "prompt" in config.get(step):
+            if "prompt" not in config.get(step):
                 file = config.get(step).get("prompt_file", "default")
                 with open(f"prompts/{step}/{file}.txt") as f:
                     config[step]["prompt"] = f.read()
             # resolve model
-            if not "model" in config.get(step):
+            if "model" not in config.get(step):
                 if "model" in config:
                     config[step]["model"] = config["model"]
 
