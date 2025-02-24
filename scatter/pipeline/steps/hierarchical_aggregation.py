@@ -125,7 +125,7 @@ def _build_arguments(clusters: pd.DataFrame) -> list[Argument]:
             "comment_id": row["comment-id"],
             "x": row["x"],
             "y": row["y"],
-            "p": 0,  # NOTE: 一旦全部0でい��る
+            "p": 0,  # NOTE: 一旦全部0でいれる
             "cluster_ids": cluster_ids,
         }
         arguments.append(argument)
