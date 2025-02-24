@@ -28,6 +28,7 @@ class Cluster(TypedDict):
     takeaway: str
     value: int
     parent: str
+    density_rank_percentile: float | None
 
 
 def hierarchical_aggregation(config):
@@ -124,7 +125,7 @@ def _build_arguments(clusters: pd.DataFrame) -> list[Argument]:
             "comment_id": row["comment-id"],
             "x": row["x"],
             "y": row["y"],
-            "p": 0,  # NOTE: 一旦全部0でいれる
+            "p": 0,  # NOTE: 一旦全部0でい��る
             "cluster_ids": cluster_ids,
         }
         arguments.append(argument)
@@ -140,6 +141,7 @@ def _build_cluster_value(melted_labels: pd.DataFrame, total_num: int) -> list[Cl
             takeaway="",
             value=total_num,
             parent="",
+            density_rank_percentile=0,
         )
     ]
 
@@ -151,6 +153,7 @@ def _build_cluster_value(melted_labels: pd.DataFrame, total_num: int) -> list[Cl
             takeaway=melted_label["description"],
             value=melted_label["value"],
             parent=melted_label.get("parent", "全体"),
+            density_rank_percentile=melted_label.get("density_rank_percentile"),
         )
         results.append(cluster_value)
     return results
@@ -174,6 +177,7 @@ def _build_comments_value(
             if should_skip:
                 continue
             comment_dict[str(id)] = res
+
     return comment_dict
 
 
