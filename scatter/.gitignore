@@ -12,14 +12,21 @@ pipeline/configs/*
 !pipeline/configs/example-videos.json
 !pipeline/configs/dummy-comments-japan.json
 !pipeline/configs/dummy-comments-japan-multi.json
+
 pipeline/outputs/*
 pipeline/outputs/*/*.csv
 pipeline/outputs/*/*.pkl
 pipeline/outputs/*/*.txt
 pipeline/outputs/*/*.json
 
+!pipeline/outputs/example-hierarchical-polis
+!pipeline/outputs/example-hierarchical-polis/hierarchical_result.json
+!pipeline/outputs/example-hierarchical-polis/metadata.json
+!pipeline/outputs/example-hierarchical-polis/reporter.png
+!pipeline/outputs/example-hierarchical-polis/icon.png
+pipeline/outputs/example-hierarchical-polis/report
 
- Byte-compiled / optimized / DLL files
+Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class

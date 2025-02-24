@@ -6,7 +6,7 @@ const report = process.env.REPORT
 if (!report) {
   console.log('\n┌──────────────────────────────────────────┐')
   console.log('│                                          │')
-  console.log('│        [ Broadlistening Report ]         │')
+  console.log('│        [ Broadlistening Chart ]         │')
   console.log('│                                          │')
   console.log('│   ERROR: Please set process.env.REPORT   │')
   console.log('│     (`REPORT=example npm run build`)     │')
@@ -25,7 +25,12 @@ let nextConfig: NextConfig = {
   env: { REPORT: report },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png']
+      const publicDir = path.resolve('./public')
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir)
+        console.log(` ✓ Created directory: ${publicDir}`)
+      }
+      const filesToCopy = ['hierarchical_result.json', 'metadata.json', 'reporter.png', 'icon.png']
       filesToCopy.forEach(file => {
         const sourcePath = path.resolve(`../pipeline/outputs/${process.env.REPORT}/${file}`)
         const destinationPath = path.resolve(`./public/${file}`)

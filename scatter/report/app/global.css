@@ -2,7 +2,7 @@ body {
   font-family: 'Roboto', 'Noto Sans JP', sans-serif;
   margin: 0;
   border: 0;
-  background: linear-gradient(to bottom right, #f9c8a0, #f7c5da);
+  background: linear-gradient(to right, #f9c8a0, #f7c5da);
   padding: 1rem 0;
   min-height: 100vh;
   text-align: justify;
@@ -25,6 +25,11 @@ footer {
   margin: 2rem 0 1rem;
   color: #555;
   font-size: 0.8rem;
+}
+.gradientButton {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgb(37, 160, 57) 0%, rgb(37, 119, 177) 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .gradientColor {
   color: transparent;

@@ -44,6 +44,7 @@ next-env.d.ts
 .idea
 
 # temporary
-/public/reporter.png
 /public/hierarchical_result.json
 /public/metadata.json
+/public/reporter.png
+/public/icon.png

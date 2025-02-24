@@ -1,0 +1,29 @@
+# build stage
+FROM node:22-alpine AS build-stage
+
+WORKDIR /workspace
+
+COPY scatter/report /workspace/report
+COPY scatter/pipeline/outputs/example-hierarchical-polis/hierarchical_result.json /workspace/pipeline/outputs/example-hierarchical-polis/hierarchical_result.json
+COPY scatter/pipeline/outputs/example-hierarchical-polis/metadata.json /workspace/pipeline/outputs/example-hierarchical-polis/metadata.json
+COPY scatter/pipeline/outputs/example-hierarchical-polis/reporter.png /workspace/pipeline/outputs/example-hierarchical-polis/reporter.png
+COPY scatter/pipeline/outputs/example-hierarchical-polis/icon.png /workspace/pipeline/outputs/example-hierarchical-polis/icon.png
+
+RUN cd report && npm install
+
+RUN cd report && mkdir -p public
+
+RUN cd report && REPORT=example-hierarchical-polis npm run build
+
+# runtime stage
+FROM node:22-alpine AS runtime-stage
+
+WORKDIR /workspace
+
+RUN npm install -g serve
+
+COPY --from=build-stage /workspace/pipeline/outputs/example-hierarchical-polis/report /workspace/out
+
+ENV PORT="8080"
+
+CMD ["serve", "-s", "/workspace/out", "-l", "8080"]

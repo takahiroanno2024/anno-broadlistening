@@ -1,17 +1,18 @@
 import fs from 'fs'
 import type {Metadata} from 'next'
-import {Heading, HStack, Image, Text} from '@chakra-ui/react'
-import {XIcon} from 'lucide-react'
-import {BroadlisteningGuide} from '@/components/BroadlisteningGuide'
-import {Meta} from '@/type'
+import {Meta, Result} from '@/type'
 import {ClientContainer} from '@/components/ClientContainer'
+import {Header} from '@/components/Header'
+import {Overview} from '@/components/Overview'
+import {Footer} from '@/components/Footer'
+import {ClusterOverview} from '@/components/ClusterOverview'
 
-const file = fs.readFileSync(`../pipeline/outputs/${process.env.REPORT}/hierarchical_result.json`, 'utf8')
+const file = fs.readFileSync('./public/hierarchical_result.json', 'utf8')
 const resultSize = Buffer.byteLength(file, 'utf8')
-const result = JSON.parse(file)
+const result: Result = JSON.parse(file)
 
 let meta: Meta | null = null
-const metaFilePath = `../pipeline/outputs/${process.env.REPORT}/metadata.json`
+const metaFilePath = './public/metadata.json'
 if (fs.existsSync(metaFilePath)) {
   const metaFile = fs.readFileSync(metaFilePath, 'utf8')
   meta = JSON.parse(metaFile)
@@ -29,37 +30,15 @@ export default function Page() {
   return (
     <>
       <div className={'container'}>
-        <HStack justify="space-between" mb={8}>
-          <HStack>
-            {meta && (
-              <>
-                <Image
-                  src={'/reporter.png'}
-                  mx={'auto'}
-                  objectFit={'cover'}
-                  maxH={{base: '40px', md: '50px'}}
-                  maxW={{base: '120px', md: '200px'}}
-                  alt={meta.reporterName}
-                />
-                <XIcon color={'gray'}/>
-              </>
-            )}
-            <Heading
-              as={'h1'}
-              size={{base: 'sm', md: 'lg'}}
-              fontWeight={'bold'}
-              className={'gradientColor'}
-              lineHeight={'1.4'}
-            >デジタル民主主義2030<br/>ブロードリスニング</Heading>
-          </HStack>
-          <BroadlisteningGuide/>
-        </HStack>
-        <ClientContainer resultSize={resultSize} meta={meta} />
+        <Header meta={meta} />
+        <Overview result={result} />
+        <ClientContainer resultSize={resultSize} meta={meta}>
+          {result.clusters.filter(c => c.level === 1).map(c => (
+            <ClusterOverview key={c.id} cluster={c} />
+          ))}
+        </ClientContainer>
       </div>
-      <footer>
-        {meta && (<Text fontWeight={'bold'}>{meta.reporterName}</Text>)}
-        <Text>デジタル民主主義2030 ブロードリスニング</Text>
-      </footer>
+      <Footer meta={meta} />
     </>
   )
 }

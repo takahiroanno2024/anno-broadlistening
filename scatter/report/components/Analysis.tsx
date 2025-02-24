@@ -1,7 +1,7 @@
 'use client'
 
 import {Result} from '@/type'
-import {Box, Button, Heading, HStack, Separator, Text} from '@chakra-ui/react'
+import {Box, Button, Heading, HStack, Icon, Separator, Text, VStack} from '@chakra-ui/react'
 import {
   TimelineConnector,
   TimelineContent,
@@ -10,7 +10,13 @@ import {
   TimelineRoot,
   TimelineTitle
 } from '@/components/ui/timeline'
-import {CircleArrowDownIcon} from 'lucide-react'
+import {
+  ChevronRightIcon,
+  CircleArrowDownIcon,
+  ClipboardCheckIcon,
+  MessageCircleWarningIcon,
+  MessagesSquareIcon,
+} from 'lucide-react'
 import {
   DrawerBackdrop, DrawerBody,
   DrawerContent, DrawerFooter,
@@ -19,6 +25,7 @@ import {
   DrawerTitle
 } from '@/components/ui/drawer'
 import {useState} from 'react'
+import {Tooltip} from '@/components/ui/tooltip'
 
 type ReportProps = {
   result: Result
@@ -29,10 +36,35 @@ export function Analysis({result}: ReportProps) {
   const [selectedData, setSelectedData] = useState<{ title: string, body: string}|null>(null)
 
   return (
-    <Box mx={'auto'} maxW={'750px'} mb={12}>
-      <Separator my={12} />
+    <Box mx={'auto'} maxW={'750px'} mb={12} cursor={'default'}>
+      <Separator mt={20} mb={12} />
       <Heading textAlign={'center'} fontSize={'xl'} mb={5}>Analysis</Heading>
-      <Text fontSize={'sm'} mb={5}>{result.config.intro}</Text>
+      <HStack mb={5} justify={'center'}>
+        <Tooltip content={'全てのコメントをAIで分析し、意見が含まれるコメントを抽出します。意見が含まれないコメントや、議題と関係のないコメントは除外されます。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><MessageCircleWarningIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{Object.keys(result.comments).length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>意見が含まれるコメント数</Text>
+          </VStack>
+        </Tooltip>
+        <ChevronRightIcon />
+        <Tooltip content={'抽出したコメントをAIで分析し、様々な議論を抽出します。複数の意見が混ざったコメントなども適切に分離します。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><MessagesSquareIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.arguments.length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>抽出した議論数</Text>
+          </VStack>
+        </Tooltip>
+        <ChevronRightIcon />
+        <Tooltip content={'抽出した議論をAIで分析し、近しい議論を一つのクラスターに分類します。クラスターごとの議論を要約し、大量の意見を見える化します。'} openDelay={0} closeDelay={0}>
+          <VStack gap={0} w={'200px'}>
+            <Icon mb={2}><ClipboardCheckIcon size={'30px'} /></Icon>
+            <Text className={'headingColor'}  fontSize={'3xl'} fontWeight={'bold'} lineHeight={1} mb={1}>{result.clusters.length.toLocaleString()}</Text>
+            <Text fontSize={'xs'}>集約したクラスター数</Text>
+          </VStack>
+        </Tooltip>
+      </HStack>
+      <Text mb={5}>{result.config.intro}</Text>
       <Box>
         <Heading fontSize={'md'} mb={5}>分析手順</Heading>
         <TimelineRoot size={'lg'}>
@@ -165,7 +197,7 @@ export function Analysis({result}: ReportProps) {
                   <TimelineTitle fontWeight={'bold'}>表示</TimelineTitle>
                   <TimelineDescription>
                     出力されたJSONファイルをグラフィカルに表示するステップです。<br />
-                    クラスタの概要、議論の内容などを可視化します。あなたが見ているこの画面です。
+                    クラスタの概要、議論の内容などを可視化します。あなたが見ているこの画面が出来上がります。
                   </TimelineDescription>
                   <HStack>
                     <Button variant={'outline'} size={'xs'} onClick={() => setSelectedData({

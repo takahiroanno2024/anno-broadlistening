@@ -19,16 +19,16 @@ export function About({meta}: AboutProps) {
         mx={'auto'}
         mb={5}
         objectFit={'cover'}
-        maxW={'200px'}
+        maxW={'250px'}
         alt={meta.reporterName}
       />
-      <Text fontSize={'sm'} mb={5} whiteSpace={'pre-line'}>
+      <Text mb={5} whiteSpace={'pre-line'}>
         {meta.projectMessage}
       </Text>
       <VStack>
         {meta.projectLink && (
           <Link href={meta.projectLink} target={'_blank'} rel={'noopener noreferrer'}>
-            <Button size={'xl'} w={'300px'}>プロジェクトを開く<ExternalLinkIcon /></Button>
+            <Button size={'2xl'} w={'300px'} className={'gradientButton'}>ウェブサイトを見る<ExternalLinkIcon /></Button>
           </Link>
         )}
         <HStack gap={4}>

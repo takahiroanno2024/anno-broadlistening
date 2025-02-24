@@ -9,7 +9,7 @@ on:
       - synchronize
       - reopened
     paths:
-      - 'scatter/next-app/**'
+      - 'scatter/report/**'
 
 jobs:
   build:
@@ -29,16 +29,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: 'scatter/next-app/package-lock.json'
+        cache-dependency-path: 'scatter/report/package-lock.json'
 
     - name: Install dependencies
-      working-directory: ./scatter/next-app
+      working-directory: ./scatter/report
       run: npm ci
         
     - name: Run build
-      working-directory: scatter/next-app
-      run: npm run build
+      working-directory: scatter/report
+      run: REPORT=example-hierarchical-polis npm run build
 
     - name: Run tests
-      working-directory: scatter/next-app
+      working-directory: scatter/report
       run: npm test

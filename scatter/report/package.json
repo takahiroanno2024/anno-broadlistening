@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "npx serve ../pipeline/outputs/${REPORT}/report",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.5.1",
