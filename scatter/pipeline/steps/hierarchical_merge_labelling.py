@@ -325,8 +325,9 @@ def calculate_cluster_density(melted_df: pd.DataFrame, config: dict):
 
 
 def calculate_density(embeds: np.ndarray):
-    """クラスタ内の密度計算"""
-    distances = pdist(embeds)
+    """平均距離に基づいて密度を計算"""
+    center = np.mean(embeds, axis=0)
+    distances = np.linalg.norm(embeds - center, axis=1)
     avg_distance = np.mean(distances)
     density = 1 / (avg_distance + 1e-10)
     return density
