@@ -3,7 +3,9 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from functools import partial
 
+import numpy as np
 import pandas as pd
+from scipy.spatial.distance import pdist
 from tqdm import tqdm
 
 from services.llm import request_to_chat_openai
@@ -65,7 +67,8 @@ def hierarchical_merge_labelling(config: dict) -> None:
     # 上記のdfに親子関係を追加
     parent_child_df = _build_parent_child_mapping(merge_result_df, cluster_id_columns)
     melted_df = melted_df.merge(parent_child_df, on=["level", "id"], how="left")
-    melted_df.to_csv(merge_path, index=False)
+    density_df = calculate_cluster_density(melted_df, config)
+    density_df.to_csv(merge_path, index=False)
 
 
 def _build_parent_child_mapping(df: pd.DataFrame, cluster_id_columns: list[str]):
@@ -302,3 +305,29 @@ def process_merge_labelling(
             current_columns.label: "エラーでラベル名が取得できませんでした",
             current_columns.description: "エラーで解説が取得できませんでした",
         }
+
+
+def calculate_cluster_density(melted_df: pd.DataFrame, config: dict):
+    """クラスタ内の密度計算"""
+    hierarchical_cluster_df = pd.read_csv(f"outputs/{config['output_dir']}/hierarchical_clusters.csv")
+
+    densities = []
+    for level, c_id in zip(melted_df["level"], melted_df["id"]):
+        cluster_embeds = hierarchical_cluster_df[hierarchical_cluster_df[f"cluster-level-{level}-id"] == c_id][["x", "y"]].values
+        density = calculate_density(cluster_embeds)
+        densities.append(density)
+
+    # 密度のランクを計算
+    melted_df["density"] = densities
+    melted_df["density_rank"] = melted_df.groupby("level")["density"].rank(ascending=False, method='first')
+    melted_df["density_rank_percentile"] = melted_df.groupby("level")["density_rank"].transform(lambda x: x / len(x))
+    return melted_df
+
+
+def calculate_density(embeds: np.ndarray):
+    """平均距離に基づいて密度を計算"""
+    center = np.mean(embeds, axis=0)
+    distances = np.linalg.norm(embeds - center, axis=1)
+    avg_distance = np.mean(distances)
+    density = 1 / (avg_distance + 1e-10)
+    return density
